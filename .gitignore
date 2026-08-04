@@ -1,0 +1,26 @@
+# Ignore Python / Spark / IDE noise
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.databricks/
+.spark-warehouse/
+spark-warehouse/
+metastore_db/
+derby.log
+*.delta/
+.DS_Store
+.idea/
+.vscode/
+docs/metrics/agent_grades.csv
+!docs/metrics/.gitkeep

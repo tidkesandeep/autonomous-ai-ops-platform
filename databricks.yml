@@ -1,0 +1,29 @@
+# Databricks Asset Bundle — Autonomous AI Ops Platform
+# Docs: https://docs.databricks.com/dev-tools/bundles/index.html
+
+bundle:
+  name: autonomous-ai-ops-platform
+
+variables:
+  demo_catalog:
+    description: Unity Catalog catalog for monitored e-commerce data
+    default: demo
+  ops_catalog:
+    description: Unity Catalog catalog for ops telemetry + synced analytics
+    default: ops
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      # Set host via DATABRICKS_HOST or `databricks bundle deploy -t dev`
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
