@@ -1,0 +1,34 @@
+# Job definitions for the monitored demo platform (Week 1)
+# Detection / agent / poller jobs land in later weeks.
+
+resources:
+  jobs:
+    demo_medallion_pipeline:
+      name: demo-medallion-pipeline
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      tasks:
+        - task_key: bootstrap_catalogs
+          notebook_task:
+            notebook_path: ../notebooks/demo/00_bootstrap_catalogs.py
+            base_parameters:
+              demo_catalog: ${var.demo_catalog}
+              ops_catalog: ${var.ops_catalog}
+          # Free Edition: serverless / environment configured in workspace UI if needed
+
+        - task_key: run_medallion
+          depends_on:
+            - task_key: bootstrap_catalogs
+          notebook_task:
+            notebook_path: ../notebooks/demo/01_medallion_pipelines.py
+            base_parameters:
+              n_customers: "1000"
+              n_products: "200"
+              n_orders: "5000"
+              n_events: "20000"
+              n_reviews: "2000"
+              seed: "42"
+              demo_catalog: ${var.demo_catalog}
+
+        # Week 3: final detection task with run_if: ALL_DONE goes here
+        # so it still fires when an upstream task fails.
