@@ -31,7 +31,6 @@ Completed against workspace `https://dbc-da72c144-83db.cloud.databricks.com`
 
 **Chosen path:** **A** (with documented analytics sync mechanism above)
 
-
 ## Demo medallion deploy (2026-08-04)
 
 - Job: `demo-medallion-pipeline` (`605068665132316`) — run SUCCESS
@@ -49,3 +48,9 @@ Completed against workspace `https://dbc-da72c144-83db.cloud.databricks.com`
 ## Security action required
 
 A PAT was shared in chat during setup. **Revoke it** in Settings → Developer → Access tokens, generate a new one, and keep the new value only in local env / password manager.
+
+## Phase 2 live jobs (2026-08-04)
+
+- `ops-telemetry-dq` (`140965093926378`) — SUCCESS; writes `ops.bronze.task_telemetry` + `ops.gold.fact_dq_check`
+- `ops-jobs-api-poller` (`1022675266232756`) — SUCCESS; writes `ops.bronze.raw_task_logs` (expand_tasks enabled)
+- Fixture job `ops-force-fail-fixture` used to validate crash-path ingestion
