@@ -31,6 +31,13 @@ Completed against workspace `https://dbc-da72c144-83db.cloud.databricks.com`
 
 **Chosen path:** **A** (with documented analytics sync mechanism above)
 
+
+## Demo medallion deploy (2026-08-04)
+
+- Job: `demo-medallion-pipeline` (`605068665132316`) — run SUCCESS
+- Workspace code: `/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform`
+- Row counts: bronze customers 1000 / products 200 / orders 5000 / events 20k / reviews 2000; gold `fact_orders` 5000, `dim_customer` 1000, `dim_product` 191
+
 ## Auth notes (for operators)
 
 | Secret | Where |
