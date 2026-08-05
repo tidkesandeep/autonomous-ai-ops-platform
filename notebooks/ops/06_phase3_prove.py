@@ -90,10 +90,22 @@ for r in prove_delta:
     assert r["status"] == "OPEN", r
 print("DELTA_VISIBILITY_OK")
 
-# Persist scorecard into the workspace project tree for git pickup
-score_path = f"{ROOT}/docs/metrics/phase3_scorecard.json"
-with open(score_path, "w", encoding="utf-8") as fh:
-    json.dump(report, fh, indent=2, default=str)
+# Persist scorecard (Workspace folder must exist)
+import os
+from pathlib import Path
+
+score_dir = Path(ROOT) / "docs" / "metrics"
+score_dir.mkdir(parents=True, exist_ok=True)
+score_path = score_dir / "phase3_scorecard.json"
+# Keep a compact report for metrics (drop bulky per_class evidence dumps if needed)
+compact = {
+    "ran_at": report["ran_at"],
+    "matches": report["matches"],
+    "primary_scorecard": report["primary_scorecard"],
+    "signal_scorecard": report["signal_scorecard"],
+    "exit_criteria_met": report["exit_criteria_met"],
+}
+score_path.write_text(json.dumps(compact, indent=2, default=str), encoding="utf-8")
 print("wrote", score_path)
 
 # COMMAND ----------
