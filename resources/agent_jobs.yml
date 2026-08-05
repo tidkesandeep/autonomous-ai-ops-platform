@@ -6,8 +6,12 @@ resources:
       name: ops-embed-runbooks
       max_concurrent_runs: 1
       timeout_seconds: 1800
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: embed_runbooks
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/07_embed_runbooks.py
 
@@ -15,8 +19,12 @@ resources:
       name: ops-run-agent
       max_concurrent_runs: 2
       timeout_seconds: 1800
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: investigate
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/08_run_agent.py
             base_parameters:
@@ -29,6 +37,7 @@ resources:
       timeout_seconds: 7200
       tasks:
         - task_key: eval_18
+          max_retries: 0
           notebook_task:
             notebook_path: ../notebooks/ops/09_agent_eval.py
             base_parameters:
