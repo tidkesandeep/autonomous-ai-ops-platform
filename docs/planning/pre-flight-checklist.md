@@ -54,3 +54,12 @@ A PAT was shared in chat during setup. **Revoke it** in Settings → Developer �
 - `ops-telemetry-dq` (`140965093926378`) — SUCCESS; writes `ops.bronze.task_telemetry` + `ops.gold.fact_dq_check`
 - `ops-jobs-api-poller` (`1022675266232756`) — SUCCESS; writes `ops.bronze.raw_task_logs` (expand_tasks enabled)
 - Fixture job `ops-force-fail-fixture` used to validate crash-path ingestion
+
+## Phase 3 live verification (2026-08-05)
+
+- Lakebase app-state schema applied (`incidents`, `incident_signals`, `incident_status_events`, …)
+- Jobs: `ops-chaos-inject` (`272642187820883`), `ops-incident-detection` (`654518031702213`)
+- Proven loop: chaos `null_spike` (`phase3-chaos-null-4`) → DQ `customers_email_null_rate` failed (0.514) → one OPEN incident with `primary_failure_type=null_spike`
+- Analytics bridge: `ops.gold.incidents_delta` (and signals/status mirrors) refreshed via CTAS from `lakebase_app`
+- Slack webhook still pending (notifier no-ops when `SLACK_WEBHOOK_URL` unset)
+
