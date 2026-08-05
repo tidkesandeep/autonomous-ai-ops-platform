@@ -13,7 +13,8 @@ import re
 import numpy as np
 
 EMBED_DIM = 256
-DEFAULT_API_MODEL = "gemini/text-embedding-004"
+# text-embedding-004 retired on many AI Studio keys; gemini-embedding-001 is current.
+DEFAULT_API_MODEL = "gemini/gemini-embedding-001"
 
 
 def _tokenize(text: str) -> list[str]:
