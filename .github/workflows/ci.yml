@@ -25,8 +25,11 @@ jobs:
       - name: Ruff
         run: ruff check src tests
 
+      - name: SQLFluff
+        run: sqlfluff lint resources/lakebase_schema.sql
+
       - name: Pytest
         run: pytest -q
         env:
-          # Local Spark; Databricks tables are mocked / skipped when unavailable
+          # Local Spark; Databricks / Lakebase tests skip when unavailable
           SPARK_LOCAL_IP: 127.0.0.1
