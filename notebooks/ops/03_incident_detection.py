@@ -26,6 +26,9 @@ os.environ["DATABRICKS_HOST"] = "https://" + spark.conf.get("spark.databricks.wo
 os.environ.setdefault("LAKEBASE_INSTANCE", "aiops-lakebase")
 os.environ.setdefault("LAKEBASE_USER", "sandeeptidke.work@gmail.com")
 
+from src.common.secrets import hydrate_env_from_secret_scope
+print("secrets", hydrate_env_from_secret_scope())
+
 from src.common.postgres import postgres_connection
 from src.detection.engine import run_detection
 from src.detection.incidents import PostgresIncidentStore
