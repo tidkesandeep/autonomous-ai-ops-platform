@@ -23,12 +23,14 @@ def load_detection_inputs(
     spark: Any,
     *,
     lookback_hours: int = 24,
-    telemetry_table: str = f"{OPS_BRONZE}.task_telemetry",
-    dq_table: str = f"{OPS_GOLD}.fact_dq_check",
-    logs_table: str = f"{OPS_BRONZE}.raw_task_logs",
+    telemetry_table: str | None = None,
+    dq_table: str | None = None,
+    logs_table: str | None = None,
 ) -> dict[str, Any]:
     """Pull recent ops rows used by the rule suite."""
-    # Spark SQL interval literal
+    telemetry_table = telemetry_table or f"{OPS_BRONZE}.task_telemetry"
+    dq_table = dq_table or f"{OPS_GOLD}.fact_dq_check"
+    logs_table = logs_table or f"{OPS_BRONZE}.raw_task_logs"
     telem = _rows(
         spark,
         f"""
