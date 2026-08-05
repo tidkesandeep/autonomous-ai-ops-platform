@@ -1,0 +1,31 @@
+{
+  "phase": 6,
+  "ran_at": "2026-08-05T06:15:00+00:00",
+  "exit_criteria_met": true,
+  "bundle": {
+    "validate": "OK",
+    "deploy_target": "dev",
+    "jobs_recreated": 13,
+    "workspace_root": "/Workspace/Users/sandeeptidke.work@gmail.com/.bundle/autonomous-ai-ops-platform/dev"
+  },
+  "ci": {
+    "ruff": "pass",
+    "pytest": "pass",
+    "sqlfluff": "pass"
+  },
+  "docs": {
+    "readme_architecture_mermaid": true,
+    "setup_guide": true,
+    "metrics_table": true,
+    "demo_script": "docs/demo-script.md",
+    "production_checklist": "docs/planning/production-checklist.md"
+  },
+  "prior_scorecards": {
+    "phase3_detection_precision": 1.0,
+    "phase3_detection_recall": 1.0,
+    "phase4_agent_mean_rubric": 2.0,
+    "phase4_zeros": 0,
+    "phase5_full_loop": true
+  },
+  "notes": "Demo video is operator-recorded from docs/demo-script.md; automated proof remains phase3–5 scorecards + bundle deploy."
+}
