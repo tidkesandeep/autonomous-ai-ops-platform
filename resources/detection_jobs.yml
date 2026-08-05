@@ -57,3 +57,18 @@ resources:
             notebook_path: ../notebooks/ops/06_phase3_prove.py
             base_parameters:
               checks_path: /Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/config/dq_checks.yml
+
+    ops_seed_console:
+      name: ops-seed-console
+      max_concurrent_runs: 1
+      timeout_seconds: 10800
+      tasks:
+        - task_key: seed_all_classes
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../notebooks/ops/14_seed_console.py
+            base_parameters:
+              clear_existing: "false"
+              run_agent: "true"
+              approve_diagnosis_only: "true"
+              checks_path: /Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/config/dq_checks.yml
