@@ -1,14 +1,15 @@
-"""
-# Phase 3 Prove — Week 3 exit criteria
-
-For each of the 6 failure classes:
-  reset demo → inject → seed ops evidence → detect → open Lakebase incident
-
-Then score primary_failure_type match and mirror Lakebase → Delta.
-Finally verify reset_demo cleans the environment.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Phase 3 Prove — Week 3 exit criteria
+# MAGIC
+# MAGIC For each of the 6 failure classes:
+# MAGIC   reset demo → inject → seed ops evidence → detect → open Lakebase incident
+# MAGIC
+# MAGIC Then score primary_failure_type match and mirror Lakebase → Delta.
+# MAGIC Finally verify reset_demo cleans the environment.
+
+# COMMAND ----------
+
 # MAGIC %pip install faker pg8000 requests PyYAML --quiet
 # MAGIC %restart_python
 

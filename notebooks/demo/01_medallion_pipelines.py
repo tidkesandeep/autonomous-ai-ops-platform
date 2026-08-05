@@ -1,12 +1,13 @@
-"""
-# Demo Medallion — Bronze → Silver → Gold
-
-Runs the monitored e-commerce pipelines end-to-end.
-
-Widgets control scale so Free Edition stays comfortable.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Demo Medallion — Bronze → Silver → Gold
+# MAGIC
+# MAGIC Runs the monitored e-commerce pipelines end-to-end.
+# MAGIC
+# MAGIC Widgets control scale so Free Edition stays comfortable.
+
+# COMMAND ----------
+
 # MAGIC %pip install faker --quiet
 # MAGIC
 # COMMAND ----------

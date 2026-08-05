@@ -1,11 +1,12 @@
-"""
-# Incident Detection Engine
-
-Phase 3: evaluate ops telemetry / DQ / crash logs → open Lakebase incidents
-(one per job_run_id) + append incident_signals + Slack notify (if configured).
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Incident Detection Engine
+# MAGIC
+# MAGIC Phase 3: evaluate ops telemetry / DQ / crash logs → open Lakebase incidents
+# MAGIC (one per job_run_id) + append incident_signals + Slack notify (if configured).
+
+# COMMAND ----------
+
 # MAGIC %pip install pg8000 requests --quiet
 # MAGIC %restart_python
 

@@ -1,10 +1,11 @@
-"""
-# Run Investigation Agent
-
-Phase 4: investigate one Lakebase incident (by incident_id or job_run_id).
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Run Investigation Agent
+# MAGIC
+# MAGIC Phase 4: investigate one Lakebase incident (by incident_id or job_run_id).
+
+# COMMAND ----------
+
 # MAGIC %pip install pg8000 numpy litellm langgraph langchain-core PyGithub requests --quiet
 # MAGIC %restart_python
 

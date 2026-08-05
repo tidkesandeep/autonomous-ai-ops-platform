@@ -1,10 +1,11 @@
-"""
-# Demo Reset
-
-Phase 3: regenerate demo medallion tables, drop ops telemetry, truncate Lakebase.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Demo Reset
+# MAGIC
+# MAGIC Phase 3: regenerate demo medallion tables, drop ops telemetry, truncate Lakebase.
+
+# COMMAND ----------
+
 # MAGIC %pip install faker pg8000 requests --quiet
 # MAGIC %restart_python
 # MAGIC

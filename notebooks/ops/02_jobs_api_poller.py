@@ -1,10 +1,11 @@
-"""
-# Jobs API Crash Poller
-
-Phase 2 poller: ingest failed/internal-error task outputs into ops.bronze.raw_task_logs.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Jobs API Crash Poller
+# MAGIC
+# MAGIC Phase 2 poller: ingest failed/internal-error task outputs into ops.bronze.raw_task_logs.
+
+# COMMAND ----------
+
 # MAGIC %pip install requests --quiet
 # MAGIC
 # COMMAND ----------

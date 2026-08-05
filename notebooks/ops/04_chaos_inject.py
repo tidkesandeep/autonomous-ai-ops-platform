@@ -1,11 +1,12 @@
-"""
-# Chaos Failure Injection
-
-Phase 3: inject one of the six failure classes into demo tables and record
-ground truth in ops.bronze.injected_failures.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Chaos Failure Injection
+# MAGIC
+# MAGIC Phase 3: inject one of the six failure classes into demo tables and record
+# MAGIC ground truth in ops.bronze.injected_failures.
+
+# COMMAND ----------
+
 # MAGIC %pip install faker --quiet
 # MAGIC
 # COMMAND ----------

@@ -1,10 +1,11 @@
-"""
-# Embed Runbooks
-
-Phase 4: chunk docs/runbooks/*.md and rebuild ops.gold.runbook_embeddings.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Embed Runbooks
+# MAGIC
+# MAGIC Phase 4: chunk docs/runbooks/*.md and rebuild ops.gold.runbook_embeddings.
+
+# COMMAND ----------
+
 # MAGIC %pip install numpy litellm --quiet
 # MAGIC %restart_python
 

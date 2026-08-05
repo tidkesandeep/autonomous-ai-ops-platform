@@ -1,10 +1,11 @@
-"""
-# Phase 5 prove — full human-in-the-loop remediation
-
-inject/seed → agent RCA → approve → remediate → RESOLVED (+ Delta mirrors)
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Phase 5 prove — full human-in-the-loop remediation
+# MAGIC
+# MAGIC inject/seed → agent RCA → approve → remediate → RESOLVED (+ Delta mirrors)
+
+# COMMAND ----------
+
 # MAGIC %pip install pg8000 numpy litellm langgraph langchain-core PyGithub requests --quiet
 # MAGIC %restart_python
 

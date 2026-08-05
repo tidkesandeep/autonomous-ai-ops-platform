@@ -1,8 +1,8 @@
-"""
-# Sync Lakebase → ops Delta analytics mirrors (Phase 5)
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Sync Lakebase → ops Delta analytics mirrors (Phase 5)
+
+# COMMAND ----------
 
 # COMMAND ----------
 

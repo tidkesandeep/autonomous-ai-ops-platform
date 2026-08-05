@@ -1,12 +1,12 @@
-"""
-# Bootstrap Unity Catalog catalogs
-
-Creates `demo` and `ops` catalogs/schemas used by the platform.
-Run once per workspace (Free Edition: may already have a default catalog —
-adjust names if needed).
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Bootstrap Unity Catalog catalogs
+# MAGIC
+# MAGIC Creates `demo` and `ops` catalogs/schemas used by the platform.
+# MAGIC Run once per workspace (Free Edition: may already have a default catalog —
+# MAGIC adjust names if needed).
+
+# COMMAND ----------
 
 dbutils.widgets.text("demo_catalog", "demo")
 dbutils.widgets.text("ops_catalog", "ops")

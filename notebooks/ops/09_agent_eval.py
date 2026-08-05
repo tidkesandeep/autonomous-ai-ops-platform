@@ -1,11 +1,12 @@
-"""
-# Agent Evaluation (Phase 4 exit criteria)
-
-Runs 6 failure classes × 3 repeats with synthetic ops evidence, auto-grades RCAs,
-and writes docs/metrics/agent_grades.csv + phase4_scorecard.json.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Agent Evaluation (Phase 4 exit criteria)
+# MAGIC
+# MAGIC Runs 6 failure classes × 3 repeats with synthetic ops evidence, auto-grades RCAs,
+# MAGIC and writes docs/metrics/agent_grades.csv + phase4_scorecard.json.
+
+# COMMAND ----------
+
 # MAGIC %pip install pg8000 numpy litellm langgraph langchain-core PyGithub requests --quiet
 # MAGIC %restart_python
 

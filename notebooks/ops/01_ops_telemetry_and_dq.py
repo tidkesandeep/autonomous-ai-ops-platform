@@ -1,12 +1,13 @@
-"""
-# Ops Telemetry + DQ
-
-Phase 2 observability:
-- task telemetry decorator
-- YAML-driven DQ checks
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Ops Telemetry + DQ
+# MAGIC
+# MAGIC Phase 2 observability:
+# MAGIC - task telemetry decorator
+# MAGIC - YAML-driven DQ checks
+
+# COMMAND ----------
+
 # MAGIC %pip install pyyaml requests --quiet
 # MAGIC
 # COMMAND ----------

@@ -1,10 +1,11 @@
-"""
-# Remediation job (Phase 5)
-
-Runs an approved remediation for one incident, then marks it RESOLVED.
-"""
-
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Remediation job (Phase 5)
+# MAGIC
+# MAGIC Runs an approved remediation for one incident, then marks it RESOLVED.
+
+# COMMAND ----------
+
 # MAGIC %pip install pg8000 numpy requests --quiet
 # MAGIC %restart_python
 
