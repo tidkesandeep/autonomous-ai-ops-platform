@@ -98,3 +98,12 @@ A PAT was shared in chat during setup. **Revoke it** in Settings → Developer �
 - Scorecard: `docs/metrics/phase5_scorecard.json` (`exit_criteria_met=true`)
 - Audit trail: `propose_remediation` → `approval_approved` → `remediation_executed`
 
+## Phase 6 hardening (2026-08-05) — MET
+
+- `databricks bundle validate/deploy -t dev` OK — **13** jobs recreated under `.bundle/.../dev`
+- CI: ruff + pytest + sqlfluff on `resources/lakebase_schema.sql`
+- README: Mermaid architecture, setup guide, metrics table, bootcamp coverage map
+- Demo recording outline: `docs/demo-script.md`
+- Production checklist: `docs/planning/production-checklist.md` (all §7 items checked)
+- Scorecard: `docs/metrics/phase6_scorecard.json`
+
