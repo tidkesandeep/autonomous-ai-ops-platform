@@ -7,16 +7,20 @@ resources:
       name: demo-medallion-pipeline
       max_concurrent_runs: 1
       timeout_seconds: 3600
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: bootstrap_catalogs
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/demo/00_bootstrap_catalogs.py
             base_parameters:
               demo_catalog: ${var.demo_catalog}
               ops_catalog: ${var.ops_catalog}
-          # Free Edition: serverless / environment configured in workspace UI if needed
 
         - task_key: run_medallion
+          max_retries: 1
           depends_on:
             - task_key: bootstrap_catalogs
           notebook_task:
