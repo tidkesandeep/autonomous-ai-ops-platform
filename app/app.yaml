@@ -1,0 +1,19 @@
+command:
+  - streamlit
+  - run
+  - app.py
+
+env:
+  - name: LAKEBASE_SECRET_SCOPE
+    value: "database"
+  - name: LAKEBASE_SECRET_KEY
+    value: "lakebase-url"
+  - name: LAKEBASE_INSTANCE
+    value: "aiops-lakebase"
+  - name: LAKEBASE_USER
+    value: "sandeeptidke.work@gmail.com"
+  - name: SQL_WAREHOUSE_ID
+    value: "4a3ce36aae2d0b64"
+  # Set after creating ops-remediate; updated on deploy if known.
+  - name: REMEDIATION_JOB_ID
+    value: ""
