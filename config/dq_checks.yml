@@ -19,6 +19,27 @@ checks:
       FROM demo.silver.orders
       WHERE customer_id IS NULL
 
+  - name: customers_email_null_rate
+    table: demo.silver.customers
+    metric_field: null_rate
+    comparator: "<="
+    threshold: 0.20
+    query: |
+      SELECT COALESCE(AVG(CASE WHEN email IS NULL THEN 1.0 ELSE 0.0 END), 0.0) AS null_rate
+      FROM demo.silver.customers
+
+  - name: orders_duplicate_rate
+    table: demo.silver.orders
+    metric_field: duplicate_rate
+    comparator: "<="
+    threshold: 0.01
+    query: |
+      SELECT
+        CASE WHEN COUNT(*) = 0 THEN 0.0
+             ELSE (COUNT(*) - COUNT(DISTINCT order_id)) * 1.0 / COUNT(*)
+        END AS duplicate_rate
+      FROM demo.silver.orders
+
   - name: events_lag_under_48h
     table: demo.silver.events
     metric_field: pct_late
