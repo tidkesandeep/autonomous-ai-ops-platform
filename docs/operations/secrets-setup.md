@@ -252,51 +252,188 @@ Then run `ops-run-agent` on any incident; agent actions / RCA should not say
 
 ## Point 6 — Gemini and (optional) Groq API keys
 
-### 6.1 Gemini (required for real embeddings in point 7)
+### 6.1 Gemini API key (Google AI Studio) — required for real embeddings
 
-1. Open Google AI Studio API keys:  
-   https://aistudio.google.com/apikey  
-   (same as https://aistudio.google.com/app/apikey)  
-2. Sign in with the Google account you want billed/quotas on.  
-3. Accept Terms if prompted.  
-4. Click **Create API key**.  
-5. If asked to pick a Google Cloud project:
-   - **Create API key in new project**, or  
-   - Choose an existing project you own.  
-6. Copy the key. New AI Studio keys are typically restricted to the Gemini API — that is fine.  
-7. Optional hardening later: Google Cloud Console → APIs & Credentials → restrict key to Generative Language API.
+**What this is for in our project**
+- Runbook embeddings (`text-embedding-004` via LiteLLM)
+- Optional RCA narrative polish if Groq is not set
 
-Store:
+**Direct link:** https://aistudio.google.com/app/apikey  
+(also works: https://aistudio.google.com/apikey)
+
+#### Step A — Open AI Studio and sign in
+
+1. Open https://aistudio.google.com/app/apikey in Chrome/Firefox.  
+2. Click **Sign in** with the Google account you want to own the key  
+   (personal Gmail is fine; Workspace accounts also work).  
+3. If you see **Get started** / Terms of Service:
+   - Read and **Accept** (required once).  
+4. If the left nav is collapsed, expand it.
+
+#### Step B — Land on the API Keys page
+
+You should see a page titled something like **API keys** / **Get API key**.
+
+If you landed on the AI Studio home instead:
+1. Left sidebar → click **Get API key** (key icon), **or**  
+2. Paste https://aistudio.google.com/app/apikey again.
+
+#### Step C — Create the key (project choice)
+
+1. Click **Create API key** (top of the page).  
+2. A dialog asks which Google Cloud project to attach the key to. Choose:
+
+| Dialog option | Choose when | Recommendation |
+|---|---|---|
+| **Create API key in new project** | You are new / want a clean project | **Preferred for this capstone** |
+| **Create API key in existing project** | You already have a GCP project for AI | Fine if you know which project |
+| **Import projects** (if shown first) | AI Studio does not list your GCP projects yet | Import the project, then Create API key |
+
+3. If you chose **new project**:
+   - Google auto-creates a Cloud project behind the scenes.  
+   - You usually do **not** need billing enabled for free-tier Gemini API usage, but quotas apply.  
+4. If you chose **existing project**:
+   - Pick the project from the dropdown → confirm.  
+5. Click **Create** / **Create key** in the dialog.
+
+#### Step D — Copy and save the key
+
+1. The key appears on screen. It typically looks like:  
+   `AIza…` (about 39 characters).  
+2. Click **Copy**.  
+3. Paste into a **password manager** immediately.  
+4. You can usually re-view keys later on the same API keys page, but treat “copy now” as mandatory habit.
+
+#### Step E — (Optional) name / restrict
+
+1. On the API keys list, open the key’s **⋯** menu if available → rename to `aiops-embeddings`.  
+2. Optional hardening (later):  
+   [Google Cloud Credentials](https://console.cloud.google.com/apis/credentials) → select the key →  
+   **API restrictions** → restrict to **Generative Language API**  
+   (`generativelanguage.googleapis.com`).  
+   AI Studio keys are often Gemini-restricted by default — that is OK.
+
+#### Step F — Store in Databricks (do not paste in chat)
 
 ```bash
+cd /path/to/autonomous-ai-ops-platform
 ./scripts/put-aiops-secret.sh gemini-api-key
-# paste key when prompted
+# paste AIza… when prompted (input is hidden)
 
-# optional explicit model (default already matches our code)
+# optional — our code already defaults to this
 ./scripts/put-aiops-secret.sh embedding-model gemini/text-embedding-004
 ```
 
-### 6.2 Groq (optional — nicer RCA narrative polish)
+#### Step G — Quick local smoke test (optional)
 
-1. Open https://console.groq.com/keys  
-2. Sign up / sign in.  
-3. Click **Create API Key**.  
-4. Name: `aiops-llm-polish`.  
-5. Copy the key.  
+```bash
+export GEMINI_API_KEY='AIza…'   # this shell only; never commit
+curl -sS "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}" \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"models/text-embedding-004","content":{"parts":[{"text":"hello aiops"}]}}' \
+  | head -c 300; echo
+```
 
-Store:
+Expect JSON containing an `embedding` / `values` array — **not** `API_KEY_INVALID`.
+
+#### Gemini troubleshooting
+
+| Symptom | What to do |
+|---|---|
+| Permission / IAM error on Create | Use a personal Gmail, or create key in a project you own (not a locked org project) |
+| “Import projects” empty | Create API key in **new** project instead |
+| `API_KEY_INVALID` | Regenerated wrong; create a new key and replace `aiops/gemini-api-key` |
+| Quota / ResourceExhausted | Wait / check AI Studio usage; free tier has limits |
+| Embed job still says `hash` | Secret not hydrated — see Point 7 checklist |
+
+---
+
+### 6.2 Groq API key (optional — RCA narrative polish)
+
+**What this is for in our project**
+- Optional LLM “polish” pass in `src/agent/graph.py` (fast Llama models).  
+- **Not** required for embeddings (those use Gemini).  
+- If Groq is unset but Gemini is set, polish can still use Gemini.  
+- If both unset, heuristic RCA still works (Phase 4 rubric already passed).
+
+**Direct link:** https://console.groq.com/keys
+
+#### Step A — Create / sign in to GroqCloud
+
+1. Open https://console.groq.com  
+2. Click **Sign up** or **Sign in**.  
+3. Choose one of:
+   - **Continue with Google** (fastest), or  
+   - **Continue with GitHub**, or  
+   - Email + password  
+4. Verify email if asked.  
+5. Accept the Services Agreement on first login.  
+6. **No credit card** is required for the free tier.
+
+#### Step B — Open API Keys
+
+1. In the left sidebar, click **API Keys**, **or**  
+2. Go directly to https://console.groq.com/keys  
+
+You should see a table of keys (empty at first) and a **Create API Key** button.
+
+> Note: If you are on a Groq **team** org, only **owners** / **developer** roles can create keys.
+
+#### Step C — Create the key
+
+1. Click **Create API Key**.  
+2. In the dialog:
+   - **Name:** `aiops-llm-polish`  
+   - (Leave other fields at defaults unless you need expiry.)  
+3. Click **Submit** / **Create**.  
+
+#### Step D — Copy once (critical)
+
+1. Groq shows the full secret **once**. It looks like:  
+   `gsk_…`  
+2. Click **Copy** immediately.  
+3. Save in a password manager.  
+4. If you close the dialog without copying → you **cannot** view it again.  
+   Create a new key and delete the lost one.
+
+#### Step E — Store in Databricks
 
 ```bash
 ./scripts/put-aiops-secret.sh groq-api-key
+# paste gsk_… when prompted
 ```
 
-**How the agent picks a model** (`src/agent/graph.py`):
+#### Step F — Optional smoke test
 
-- If `GROQ_API_KEY` is set → Groq Llama polish  
-- Else if `GEMINI_API_KEY` is set → Gemini flash polish  
-- Else → heuristic RCA only (still valid for rubric)
+```bash
+export GROQ_API_KEY='gsk_…'
+curl -sS https://api.groq.com/openai/v1/models \
+  -H "Authorization: Bearer $GROQ_API_KEY" | head -c 400; echo
+```
 
-Embeddings use **Gemini** when `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) is set.
+Expect a JSON list of models — not `Invalid API Key`.
+
+#### Groq troubleshooting
+
+| Symptom | What to do |
+|---|---|
+| Cannot create key | Check org role (need owner/developer) or create a personal org |
+| Lost the `gsk_` value | Create a new key; revoke the old unnamed one |
+| 429 rate limit | Free tier RPM/TPM limits; retry later or upgrade tier |
+| Agent still heuristic-only | Confirm job log `secrets` loaded `GROQ_API_KEY` |
+
+---
+
+### 6.3 How our code uses these keys
+
+| Env var | Source secret | Used for |
+|---|---|---|
+| `GEMINI_API_KEY` | `aiops/gemini-api-key` | Embeddings + fallback LLM polish |
+| `GROQ_API_KEY` | `aiops/groq-api-key` | Preferred LLM polish if set |
+| `EMBEDDING_MODEL` | `aiops/embedding-model` | Default `gemini/text-embedding-004` |
+
+Agent polish order (`src/agent/graph.py`): **Groq → Gemini → heuristic**.  
+Embeddings: Gemini when keyed, else deterministic **hash** (still valid).
 
 ### 6.3 Confirm secrets exist
 
