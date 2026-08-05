@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS incident_signals (
 CREATE INDEX IF NOT EXISTS idx_incident_signals_incident
     ON incident_signals (incident_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_incident_signal_dedup
+    ON incident_signals (incident_id, failure_type, detected_by);
+
 CREATE TABLE IF NOT EXISTS incident_status_events (
     event_id    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     incident_id UUID NOT NULL REFERENCES incidents (incident_id),
