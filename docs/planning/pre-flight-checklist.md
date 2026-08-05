@@ -44,10 +44,12 @@ Completed against workspace `https://dbc-da72c144-83db.cloud.databricks.com`
 | Host | `https://dbc-da72c144-83db.cloud.databricks.com` |
 | Token | PAT in local `~/.databrickscfg` or `DATABRICKS_TOKEN` — **never commit; rotate if pasted in chat** |
 | Lakebase | Host `ep-snowy-violet-d8t4xovo.database.us-east-2.cloud.databricks.com`, db `databricks_postgres`, user = workspace email, password = `databricks database generate-database-credential` JWT |
+| App secrets | Databricks scope **`aiops`** — see `docs/operations/secrets-setup.md` |
 
 ## Security action required
 
-A PAT was shared in chat during setup. **Revoke it** in Settings → Developer → Access tokens, generate a new one, and keep the new value only in local env / password manager.
+- [x] **PAT rotated (2026-08-05)** — new token comment `aiops-rotated-2026-08-05`; old `cursor-dev` token deleted. Keep the new value only in `~/.databrickscfg` (also backed up as `~/.databrickscfg.bak-pre-rotate` on the agent VM).
+- [ ] Store Slack / GitHub / Gemini / Groq into scope `aiops` using `scripts/put-aiops-secret.sh` (operator must create those credentials — see secrets-setup doc).
 
 ## Phase 2 live jobs (2026-08-04)
 
