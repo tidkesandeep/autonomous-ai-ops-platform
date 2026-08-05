@@ -6,8 +6,8 @@ import base64
 import json
 import os
 import uuid
-from contextlib import contextmanager
 from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 import pg8000.dbapi
