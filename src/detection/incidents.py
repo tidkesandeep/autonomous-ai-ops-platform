@@ -76,6 +76,7 @@ class PostgresIncidentStore:
                 """
                 INSERT INTO incident_signals (incident_id, failure_type, detected_by, evidence_json)
                 VALUES (%s, %s, %s, CAST(%s AS jsonb))
+                ON CONFLICT (incident_id, failure_type, detected_by) DO NOTHING
                 """,
                 (incident_id, signal.failure_type, signal.detected_by, signal.evidence_json()),
             )
@@ -111,6 +112,32 @@ class PostgresIncidentStore:
                 primary_failure_type=primary,
                 severity=signal.severity,
             )
+            # Always audit the open attempt (Slack may be unset)
+            try:
+                cur = self.conn.cursor()
+                cur.execute(
+                    """
+                    INSERT INTO audit_log (actor, action, entity_type, entity_id, detail_json)
+                    VALUES (%s, %s, %s, %s, CAST(%s AS jsonb))
+                    """,
+                    (
+                        self.changed_by,
+                        "incident_opened_notify",
+                        "incident",
+                        incident_id_str,
+                        json.dumps(
+                            {
+                                "job_run_id": signal.job_run_id,
+                                "primary_failure_type": primary,
+                                "severity": signal.severity,
+                            }
+                        ),
+                    ),
+                )
+                cur.close()
+                self.conn.commit()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("audit_log write failed: %s", exc)
         return IncidentWriteResult(
             incident_id=incident_id_str,
             job_run_id=signal.job_run_id,
@@ -153,14 +180,21 @@ class InMemoryIncidentStore:
         else:
             incident_id = self.incidents[signal.job_run_id]["incident_id"]
 
-        self.signals.append(
-            {
-                "incident_id": incident_id,
-                "failure_type": signal.failure_type,
-                "detected_by": signal.detected_by,
-                "evidence": signal.evidence,
-            }
+        already = any(
+            s["incident_id"] == incident_id
+            and s["failure_type"] == signal.failure_type
+            and s["detected_by"] == signal.detected_by
+            for s in self.signals
         )
+        if not already:
+            self.signals.append(
+                {
+                    "incident_id": incident_id,
+                    "failure_type": signal.failure_type,
+                    "detected_by": signal.detected_by,
+                    "evidence": signal.evidence,
+                }
+            )
         types = [s["failure_type"] for s in self.signals if s["incident_id"] == incident_id]
         primary = pick_primary_failure_type(types)
         self.incidents[signal.job_run_id]["primary_failure_type"] = primary
