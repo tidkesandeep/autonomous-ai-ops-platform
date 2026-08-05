@@ -3,11 +3,36 @@
 # MAGIC # Remediation job (Phase 5)
 # MAGIC
 # MAGIC Runs an approved remediation for one incident, then marks it RESOLVED.
+# MAGIC
+# MAGIC **Required job parameter:** `incident_id` (UUID). Running the job from the UI
+# MAGIC without notebook params will fail fast — use Approve in `aiops-console` or:
+# MAGIC
+# MAGIC ```bash
+# MAGIC databricks jobs run-now --json '{
+# MAGIC   "job_id": 298394127011671,
+# MAGIC   "notebook_params": {
+# MAGIC     "incident_id": "<UUID>",
+# MAGIC     "remediation_type": "quarantine_reprocess",
+# MAGIC     "parameters_json": "{\"strategy\":\"drop_null_keys\",\"column\":\"email\",\"key\":\"customer_id\"}"
+# MAGIC   }
+# MAGIC }'
+# MAGIC ```
 
 # COMMAND ----------
 
-# MAGIC %pip install pg8000 numpy requests --quiet
-# MAGIC %restart_python
+# Avoid %restart_python on serverless when deps are already present — restart mid-job
+# races the session teardown and produces misleading Log4j kernel/ThreadPool errors.
+import importlib.util
+import subprocess
+import sys
+
+_missing = [
+    pkg
+    for pkg, mod in (("pg8000", "pg8000"), ("numpy", "numpy"), ("requests", "requests"))
+    if importlib.util.find_spec(mod) is None
+]
+if _missing:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", *_missing])
 
 # COMMAND ----------
 
@@ -44,7 +69,14 @@ try:
 except json.JSONDecodeError:
     parameters = {}
 
-assert incident_id, "incident_id widget required"
+if not incident_id:
+    raise ValueError(
+        "incident_id notebook parameter is required (got empty string). "
+        "Do not Run Now without params. Approve in aiops-console, or: "
+        'databricks jobs run-now --json \'{"job_id":298394127011671,'
+        '"notebook_params":{"incident_id":"<UUID>","remediation_type":"",'
+        '"parameters_json":"{}"}}\''
+    )
 
 with postgres_connection() as conn:
     result = execute_remediation(

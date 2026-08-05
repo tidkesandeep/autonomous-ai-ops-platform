@@ -11,7 +11,9 @@ resources:
           - sandeeptidke.work@gmail.com
       tasks:
         - task_key: remediate
-          max_retries: 1
+          # Empty-param Run Now fails deterministically; retries only amplify
+          # serverless REPL restart noise in driver Log4j.
+          max_retries: 0
           notebook_task:
             notebook_path: ../notebooks/ops/10_remediate.py
             base_parameters:
