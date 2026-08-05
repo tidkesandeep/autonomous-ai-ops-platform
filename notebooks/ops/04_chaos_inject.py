@@ -21,7 +21,8 @@ ROOT = "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform"
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from src.chaos.injector import inject
+import importlib
+inject = importlib.import_module("src.chaos.injector").inject
 
 # COMMAND ----------
 
