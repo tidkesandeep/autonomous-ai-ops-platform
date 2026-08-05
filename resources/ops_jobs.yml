@@ -6,8 +6,12 @@ resources:
       name: ops-telemetry-dq
       max_concurrent_runs: 1
       timeout_seconds: 1800
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: telemetry_and_dq
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/01_ops_telemetry_and_dq.py
             base_parameters:
@@ -21,8 +25,12 @@ resources:
         quartz_cron_expression: "0 */15 * * * ?"
         timezone_id: UTC
         pause_status: PAUSED
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: ingest_failed_task_logs
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/02_jobs_api_poller.py
             base_parameters:
