@@ -1,0 +1,93 @@
+{
+  "ran_at": "2026-08-05T05:12:25.757582+00:00",
+  "matches": [
+    {
+      "job_run_id": "prove-duplicate_explosion",
+      "expected": "duplicate_explosion",
+      "primary_failure_type": "duplicate_explosion",
+      "status": "OPEN",
+      "ok": true
+    },
+    {
+      "job_run_id": "prove-job_crash",
+      "expected": "job_crash",
+      "primary_failure_type": "job_crash",
+      "status": "OPEN",
+      "ok": true
+    },
+    {
+      "job_run_id": "prove-late_data",
+      "expected": "late_data",
+      "primary_failure_type": "late_data",
+      "status": "OPEN",
+      "ok": true
+    },
+    {
+      "job_run_id": "prove-null_spike",
+      "expected": "null_spike",
+      "primary_failure_type": "null_spike",
+      "status": "OPEN",
+      "ok": true
+    },
+    {
+      "job_run_id": "prove-schema_drift",
+      "expected": "schema_drift",
+      "primary_failure_type": "schema_drift",
+      "status": "OPEN",
+      "ok": true
+    },
+    {
+      "job_run_id": "prove-volume_anomaly",
+      "expected": "volume_anomaly",
+      "primary_failure_type": "volume_anomaly",
+      "status": "OPEN",
+      "ok": true
+    }
+  ],
+  "primary_scorecard": {
+    "expected": 6,
+    "detected": 6,
+    "true_positives": 6,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0
+  },
+  "signal_scorecard": {
+    "expected": 6,
+    "detected": 6,
+    "true_positives": 6,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0
+  },
+  "exit_criteria_met": true,
+  "delta_visibility_verified": true,
+  "job": {
+    "name": "ops-phase3-prove",
+    "job_id": 298045802108029,
+    "run_id": 952987383190044,
+    "note": "Prove + Delta asserts succeeded; scorecard path mkdir fixed after first run FileNotFoundError"
+  },
+  "reset_demo_verified": true,
+  "reset_job": {
+    "name": "ops-reset-demo",
+    "job_id": 51194964878044,
+    "run_id": 557672395643522,
+    "result": "SUCCESS"
+  },
+  "lakebase_after_reset": {
+    "incidents": 0,
+    "incident_signals": 0,
+    "incident_status_events": 0,
+    "audit_log": 0,
+    "approvals": 0,
+    "agent_actions": 0
+  },
+  "notes": [
+    "All 6 failure classes matched primary_failure_type in Lakebase and ops.gold.incidents_delta",
+    "reset_demo regenerates demo medallion and truncates all Lakebase app-state tables",
+    "Slack webhook still optional; opens are audited in audit_log when notify runs"
+  ]
+}
