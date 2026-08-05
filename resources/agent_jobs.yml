@@ -1,0 +1,35 @@
+# Phase 4 agent + RAG jobs
+
+resources:
+  jobs:
+    ops_embed_runbooks:
+      name: ops-embed-runbooks
+      max_concurrent_runs: 1
+      timeout_seconds: 1800
+      tasks:
+        - task_key: embed_runbooks
+          notebook_task:
+            notebook_path: ../notebooks/ops/07_embed_runbooks.py
+
+    ops_run_agent:
+      name: ops-run-agent
+      max_concurrent_runs: 2
+      timeout_seconds: 1800
+      tasks:
+        - task_key: investigate
+          notebook_task:
+            notebook_path: ../notebooks/ops/08_run_agent.py
+            base_parameters:
+              incident_id: ""
+              job_run_id: ""
+
+    ops_agent_eval:
+      name: ops-agent-eval
+      max_concurrent_runs: 1
+      timeout_seconds: 7200
+      tasks:
+        - task_key: eval_18
+          notebook_task:
+            notebook_path: ../notebooks/ops/09_agent_eval.py
+            base_parameters:
+              repeats: "3"
