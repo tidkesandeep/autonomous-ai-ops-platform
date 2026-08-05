@@ -1,4 +1,4 @@
-"""Lakebase connectivity for the Databricks App (secret URL or JWT fallback)."""
+"""Lakebase connectivity for the Databricks App (secret URL, PG* env, or JWT)."""
 
 from __future__ import annotations
 
@@ -9,83 +9,154 @@ import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
+from urllib.parse import unquote, urlparse
 
 import pg8000.dbapi
 import requests
 
 
 def _workspace_token_host() -> tuple[str | None, str | None]:
-    host = os.environ.get("DATABRICKS_HOST")
-    token = os.environ.get("DATABRICKS_TOKEN")
+    """Resolve Databricks host + bearer token for REST/JWT credential minting."""
+    host = (os.environ.get("DATABRICKS_HOST") or "").rstrip("/") or None
+    token = os.environ.get("DATABRICKS_TOKEN") or None
     if host and token:
-        return host.rstrip("/"), token
+        return host, token
+
+    # Databricks Apps inject SP OAuth client credentials.
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
+    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    if host and client_id and client_secret:
+        try:
+            token = _oauth_m2m_token(host, client_id, client_secret)
+            if token:
+                return host, token
+        except Exception:  # noqa: BLE001
+            pass
+
     try:
         from databricks.sdk import WorkspaceClient
 
         w = WorkspaceClient()
         cfg = w.config
-        return (cfg.host or "").rstrip("/") or None, cfg.token
+        h = (cfg.host or "").rstrip("/") or host
+        t = cfg.token or token
+        if h and t:
+            return h, t
+        # SDK may use OAuth; ask it for an authorized header/token if available.
+        if h and hasattr(cfg, "authenticate"):
+            headers = cfg.authenticate()
+            auth = (headers or {}).get("Authorization") or ""
+            if auth.lower().startswith("bearer "):
+                return h, auth.split(" ", 1)[1].strip()
     except Exception:  # noqa: BLE001
         pass
 
-    # Databricks Apps / serverless contexts often don't expose PATs via
-    # DATABRICKS_TOKEN. Try to read the runtime API token from the in-app
-    # execution context (when `dbutils` is available).
+    # Notebook / job contexts sometimes expose dbutils.
     try:
         import builtins
 
         if hasattr(builtins, "dbutils"):
-            ctx = (
-                builtins.dbutils.notebook.entry_point.getDbutils().notebook().getContext()
-            )
+            ctx = builtins.dbutils.notebook.entry_point.getDbutils().notebook().getContext()
             token = ctx.apiToken().get()
-            # apiUrl includes the base https://host/
-            host = None
+            api_url = None
             try:
-                api_url = getattr(ctx, "apiUrl", None)
-                if callable(api_url):
-                    v = api_url()
-                    host = v.get() if hasattr(v, "get") else v
+                v = ctx.apiUrl()
+                api_url = v.get() if hasattr(v, "get") else v
             except Exception:  # noqa: BLE001
-                host = None
-            if host and token:
-                return str(host).rstrip("/"), str(token)
+                api_url = host
+            if api_url and token:
+                return str(api_url).rstrip("/"), str(token)
     except Exception:  # noqa: BLE001
         pass
 
-    return None, None
+    return host, token
 
 
-def _url_from_secret() -> str | None:
-    """Return a postgres:// URL from secret/env, or None to use JWT fallback.
+def _oauth_m2m_token(host: str, client_id: str, client_secret: str) -> str:
+    """Client-credentials token for Databricks Apps service principal."""
+    # Prefer OIDC token endpoint; fall back to legacy login.
+    oidc = f"{host.rstrip('/')}/oidc/v1/token"
+    resp = requests.post(
+        oidc,
+        data={
+            "grant_type": "client_credentials",
+            "scope": "all-apis",
+        },
+        auth=(client_id, client_secret),
+        timeout=30,
+    )
+    if resp.status_code >= 400:
+        legacy = f"{host.rstrip('/')}/oidc/oauth2/v2.0/token"
+        resp = requests.post(
+            legacy,
+            data={
+                "grant_type": "client_credentials",
+                "scope": "all-apis",
+            },
+            auth=(client_id, client_secret),
+            timeout=30,
+        )
+    resp.raise_for_status()
+    return resp.json()["access_token"]
 
-    Ignores non-postgres values (e.g. a workspace https URL mistakenly stored as
-    ``database/lakebase-url``).
-    """
+
+def _decode_secret_value(raw: Any) -> str:
+    if isinstance(raw, bytes):
+        return raw.decode("utf-8")
+    text = str(raw)
+    try:
+        return base64.b64decode(text).decode("utf-8")
+    except Exception:  # noqa: BLE001
+        return text
+
+
+def _url_from_secret_or_env() -> str | None:
+    """Return a postgres:// URL from env (Apps valueFrom) or secret scope."""
+    candidates: list[str] = []
+    for env_key in ("LAKEBASE_URL", "DATABASE_URL", "lakebase-secret"):
+        if os.environ.get(env_key):
+            candidates.append(os.environ[env_key])
+
+    # Apps with a secret resource named lakebase-secret may inject it under that key.
     scope = os.environ.get("LAKEBASE_SECRET_SCOPE", "database")
     key = os.environ.get("LAKEBASE_SECRET_KEY", "lakebase-url")
-    candidates: list[str] = []
     try:
         from databricks.sdk import WorkspaceClient
 
         secret = WorkspaceClient().secrets.get_secret(scope=scope, key=key)
-        raw = secret.value
-        if isinstance(raw, bytes):
-            candidates.append(raw.decode("utf-8"))
-        else:
-            try:
-                candidates.append(base64.b64decode(raw).decode("utf-8"))
-            except Exception:  # noqa: BLE001
-                candidates.append(str(raw))
+        candidates.append(_decode_secret_value(secret.value))
     except Exception:  # noqa: BLE001
         pass
-    for env_key in ("LAKEBASE_URL", "DATABASE_URL"):
-        if os.environ.get(env_key):
-            candidates.append(os.environ[env_key])
+
     for url in candidates:
+        url = (url or "").strip()
         if url.startswith(("postgres://", "postgresql://")):
             return url
     return None
+
+
+def _kwargs_from_pg_env() -> dict[str, Any] | None:
+    """Use Databricks Apps database-resource PG* env vars when present."""
+    host = os.environ.get("PGHOST")
+    user = os.environ.get("PGUSER")
+    database = os.environ.get("PGDATABASE")
+    if not (host and user and database):
+        return None
+    password = os.environ.get("PGPASSWORD") or os.environ.get("LAKEBASE_PASSWORD")
+    if not password:
+        whost, token = _workspace_token_host()
+        instance = os.environ.get("LAKEBASE_INSTANCE", "aiops-lakebase")
+        if not whost or not token:
+            return None
+        password = _jwt_password(whost, token, instance)
+    return {
+        "host": host,
+        "port": int(os.environ.get("PGPORT", "5432")),
+        "user": user,
+        "password": password,
+        "database": database,
+        "ssl_context": True,
+    }
 
 
 def _jwt_password(host: str, token: str, instance: str) -> str:
@@ -100,11 +171,9 @@ def _jwt_password(host: str, token: str, instance: str) -> str:
 
 
 def connect_kwargs() -> dict[str, Any]:
-    url = _url_from_secret()
-    if url and url.startswith("postgres"):
-        # postgresql://user:pass@host:5432/db?sslmode=require
-        from urllib.parse import unquote, urlparse
-
+    # 1) Explicit postgres URL (Apps valueFrom / fixed secret / local env)
+    url = _url_from_secret_or_env()
+    if url:
         u = urlparse(url)
         return {
             "host": u.hostname,
@@ -115,12 +184,22 @@ def connect_kwargs() -> dict[str, Any]:
             "ssl_context": True,
         }
 
+    # 2) Apps Lakebase database resource (PGHOST/PGUSER/…)
+    pg = _kwargs_from_pg_env()
+    if pg:
+        return pg
+
+    # 3) JWT fallback using workspace host + PAT/SP token
     host, token = _workspace_token_host()
     instance = os.environ.get("LAKEBASE_INSTANCE", "aiops-lakebase")
     password = os.environ.get("LAKEBASE_PASSWORD") or os.environ.get("DATABASE_PASSWORD")
     if not password:
         if not host or not token:
-            raise RuntimeError("No Lakebase URL secret and no Databricks auth for JWT")
+            raise RuntimeError(
+                "No Lakebase URL secret and no Databricks auth for JWT. "
+                "Ensure app.yaml injects LAKEBASE_URL via valueFrom: lakebase-secret "
+                "(postgres://… URL), or add a Lakebase database resource / DATABRICKS_TOKEN."
+            )
         password = _jwt_password(host, token, instance)
     return {
         "host": os.environ.get(
