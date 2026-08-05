@@ -7,7 +7,8 @@ import json
 import os
 import uuid
 from contextlib import contextmanager
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import pg8000.dbapi
 import requests
@@ -29,22 +30,35 @@ def _workspace_token_host() -> tuple[str | None, str | None]:
 
 
 def _url_from_secret() -> str | None:
+    """Return a postgres:// URL from secret/env, or None to use JWT fallback.
+
+    Ignores non-postgres values (e.g. a workspace https URL mistakenly stored as
+    ``database/lakebase-url``).
+    """
     scope = os.environ.get("LAKEBASE_SECRET_SCOPE", "database")
     key = os.environ.get("LAKEBASE_SECRET_KEY", "lakebase-url")
+    candidates: list[str] = []
     try:
         from databricks.sdk import WorkspaceClient
 
         secret = WorkspaceClient().secrets.get_secret(scope=scope, key=key)
         raw = secret.value
         if isinstance(raw, bytes):
-            return raw.decode("utf-8")
-        # SDK may return base64-encoded string
-        try:
-            return base64.b64decode(raw).decode("utf-8")
-        except Exception:  # noqa: BLE001
-            return str(raw)
+            candidates.append(raw.decode("utf-8"))
+        else:
+            try:
+                candidates.append(base64.b64decode(raw).decode("utf-8"))
+            except Exception:  # noqa: BLE001
+                candidates.append(str(raw))
     except Exception:  # noqa: BLE001
-        return os.environ.get("LAKEBASE_URL") or os.environ.get("DATABASE_URL")
+        pass
+    for env_key in ("LAKEBASE_URL", "DATABASE_URL"):
+        if os.environ.get(env_key):
+            candidates.append(os.environ[env_key])
+    for url in candidates:
+        if url.startswith(("postgres://", "postgresql://")):
+            return url
+    return None
 
 
 def _jwt_password(host: str, token: str, instance: str) -> str:
@@ -115,7 +129,7 @@ def fetchall(sql: str, params: tuple | list | None = None) -> list[dict[str, Any
         try:
             cur.execute(sql, params or ())
             cols = [d[0] for d in cur.description]
-            return [dict(zip(cols, row)) for row in cur.fetchall()]
+            return [dict(zip(cols, row, strict=True)) for row in cur.fetchall()]
         finally:
             cur.close()
 

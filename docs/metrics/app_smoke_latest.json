@@ -1,0 +1,74 @@
+{
+  "ok": true,
+  "app_name": "aiops-console",
+  "app_url": "https://aiops-console-7474653382320337.aws.databricksapps.com",
+  "duration_s": 17.21,
+  "checks": [
+    {
+      "name": "apps_api_compute_active",
+      "ok": true,
+      "detail": "compute=ACTIVE msg=App compute is running.",
+      "required": true
+    },
+    {
+      "name": "apps_api_app_running",
+      "ok": true,
+      "detail": "app=RUNNING msg=App has status: App is running",
+      "required": true
+    },
+    {
+      "name": "apps_api_deployment",
+      "ok": true,
+      "detail": "deployment_id=01f190abff4411339e4754e64745d152 state=SUCCEEDED",
+      "required": true
+    },
+    {
+      "name": "http_healthz",
+      "ok": true,
+      "detail": "status=200",
+      "required": true
+    },
+    {
+      "name": "http_oauth_gate",
+      "ok": true,
+      "detail": "status=302 location_host=dbc-da72c144-83db.cloud.databricks.com",
+      "required": true
+    },
+    {
+      "name": "lakebase_list_incidents",
+      "ok": true,
+      "detail": "awaiting=0 recent_all=1",
+      "required": true
+    },
+    {
+      "name": "lakebase_incident_detail",
+      "ok": true,
+      "detail": "id=30637e73-15d2-40f0-9052-ac3a7dd1a3cd signals=1 events=4 actions=9 proposal=yes",
+      "required": true
+    },
+    {
+      "name": "analytics_delta_warehouse",
+      "ok": true,
+      "detail": "rows=1 sample=[['RESOLVED', '1']]",
+      "required": true
+    },
+    {
+      "name": "analytics_lakebase_fallback",
+      "ok": true,
+      "detail": "rows=1 sample=[{'status': 'RESOLVED', 'n': 1}]",
+      "required": true
+    },
+    {
+      "name": "lakebase_has_incidents",
+      "ok": true,
+      "detail": "pg_status_rows=[{'status': 'RESOLVED', 'n': 1}] delta_ok=True",
+      "required": false
+    },
+    {
+      "name": "remediation_job_exists",
+      "ok": true,
+      "detail": "job_id=298394127011671 name=ops-remediate",
+      "required": true
+    }
+  ]
+}

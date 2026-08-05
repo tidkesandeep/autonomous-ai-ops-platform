@@ -4,6 +4,12 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_app_smoke:
+        description: "Run live aiops-console smoke (needs DATABRICKS_* secrets)"
+        type: boolean
+        default: true
 
 jobs:
   lint-and-test:
@@ -23,7 +29,7 @@ jobs:
           pip install pyspark
 
       - name: Ruff
-        run: ruff check src tests
+        run: ruff check src tests scripts
 
       - name: SQLFluff
         run: sqlfluff lint resources/lakebase_schema.sql
@@ -33,3 +39,43 @@ jobs:
         env:
           # Local Spark; Databricks / Lakebase tests skip when unavailable
           SPARK_LOCAL_IP: 127.0.0.1
+
+  app-smoke:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_app_smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install smoke deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pg8000 requests databricks-sdk databricks-cli
+
+      - name: Configure Databricks CLI
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          test -n "$DATABRICKS_HOST"
+          test -n "$DATABRICKS_TOKEN"
+          mkdir -p "$HOME/.databricks"
+          printf '[DEFAULT]\nhost = %s\ntoken = %s\n' "$DATABRICKS_HOST" "$DATABRICKS_TOKEN" > "$HOME/.databrickscfg"
+
+      - name: Live aiops-console smoke
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: python scripts/smoke_aiops_console.py --json
+
+      - name: Upload smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-smoke-report
+          path: docs/metrics/app_smoke_latest.json
+          if-no-files-found: ignore
