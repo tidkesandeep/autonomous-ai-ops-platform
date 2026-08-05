@@ -69,6 +69,7 @@ flowchart LR
 |---|---|
 | Host | `https://dbc-da72c144-83db.cloud.databricks.com` |
 | App | https://aiops-console-7474653382320337.aws.databricksapps.com |
+| App smoke | `python scripts/smoke_aiops_console.py` (see `docs/operations/app-smoke.md`) |
 | Code folder | `/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform` |
 | Bundle root (dev) | `/Workspace/Users/.../.bundle/autonomous-ai-ops-platform/dev` |
 | Lakebase | `aiops-lakebase` (PG 16) |

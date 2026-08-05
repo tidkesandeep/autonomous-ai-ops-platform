@@ -93,7 +93,7 @@ def list_agent_actions(incident_id: str, limit: int = 50) -> list[dict[str, Any]
         ORDER BY created_at
         LIMIT %s
         """,
-        (incident_id,),
+        (incident_id, limit),
     )
 
 
