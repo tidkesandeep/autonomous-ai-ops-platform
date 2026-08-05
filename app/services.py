@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any
 
 import requests
-
 from db import fetchall, postgres_connection
 
 REMEDIATION_FOR = {
