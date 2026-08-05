@@ -4,6 +4,9 @@ command:
   - app.py
 
 env:
+  # Inject the actual postgres:// URL from the app secret resource (not just scope/key names).
+  - name: LAKEBASE_URL
+    valueFrom: lakebase-secret
   - name: LAKEBASE_SECRET_SCOPE
     value: "database"
   - name: LAKEBASE_SECRET_KEY
