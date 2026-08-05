@@ -39,3 +39,14 @@ resources:
             base_parameters:
               seed: "42"
               reset_lakebase: "true"
+
+    ops_phase3_prove:
+      name: ops-phase3-prove
+      max_concurrent_runs: 1
+      timeout_seconds: 7200
+      tasks:
+        - task_key: prove_six_classes
+          notebook_task:
+            notebook_path: ../notebooks/ops/06_phase3_prove.py
+            base_parameters:
+              checks_path: /Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/config/dq_checks.yml
