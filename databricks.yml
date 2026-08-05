@@ -15,15 +15,33 @@ variables:
 include:
   - resources/*.yml
 
+# Sync application + notebook sources into the bundle workspace root so job
+# notebooks can import `src.*` and read config/runbooks relative to ROOT.
+sync:
+  include:
+    - notebooks/**
+    - src/**
+    - config/**
+    - docs/runbooks/**
+    - docs/metrics/**
+    - app/**
+    - resources/lakebase_schema.sql
+    - requirements.txt
+
 targets:
   dev:
     mode: development
     default: true
     workspace:
-      # Set host via DATABRICKS_HOST or `databricks bundle deploy -t dev`
+      host: https://dbc-da72c144-83db.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
 
   prod:
     mode: production
     workspace:
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      host: https://dbc-da72c144-83db.cloud.databricks.com
+      # Free Edition: deploy under the operator home rather than /Shared
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - level: CAN_MANAGE
+        user_name: ${workspace.current_user.userName}
