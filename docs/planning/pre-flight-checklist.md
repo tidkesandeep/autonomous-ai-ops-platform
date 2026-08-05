@@ -85,3 +85,16 @@ A PAT was shared in chat during setup. **Revoke it** in Settings → Developer �
 - All 18 reports linked on Lakebase `incidents.rca_report_path` (workspace `docs/metrics/rca/`)
 - Embedding API / GitHub PAT / Slack webhook still pending for full LLM polish + commit correlation (hash embeddings + heuristic path proven)
 
+## Phase 5 live verification (2026-08-05)
+
+- Remediations: `quarantine_reprocess`, `retry_adjusted_config`, `schema_evolution_ddl` (+ `diagnosis_only`)
+- Jobs: `ops-remediate` (`298394127011671`), `ops-sync-analytics` (`50033214055805`), `ops-phase5-prove` (`237239745108586`)
+- Databricks App `aiops-console` RUNNING — https://aiops-console-7474653382320337.aws.databricksapps.com (Lakebase secret `database/lakebase-url`; `REMEDIATION_JOB_ID` wired)
+- Analytics mirrors CTAS’d: `ops.gold.{incidents,incident_signals,incident_status_events,approvals,agent_actions,audit_log}_delta`
+
+## Phase 5 exit criteria (2026-08-05) — MET
+
+- Prove job run `702826150751158` SUCCESS: `null_spike` chaos → agent RCA → approve → `quarantine_reprocess` → **RESOLVED**
+- Scorecard: `docs/metrics/phase5_scorecard.json` (`exit_criteria_met=true`)
+- Audit trail: `propose_remediation` → `approval_approved` → `remediation_executed`
+
