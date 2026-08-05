@@ -43,7 +43,8 @@ class PostgresIncidentStore:
         self.changed_by = changed_by
 
     def record_signal(self, signal: DetectedSignal) -> IncidentWriteResult:
-        with self.conn.cursor() as cur:
+        cur = self.conn.cursor()
+        try:
             cur.execute(
                 """
                 INSERT INTO incidents (job_run_id, pipeline_key, primary_failure_type, severity, status)
@@ -74,7 +75,7 @@ class PostgresIncidentStore:
             cur.execute(
                 """
                 INSERT INTO incident_signals (incident_id, failure_type, detected_by, evidence_json)
-                VALUES (%s, %s, %s, %s::jsonb)
+                VALUES (%s, %s, %s, CAST(%s AS jsonb))
                 """,
                 (incident_id, signal.failure_type, signal.detected_by, signal.evidence_json()),
             )
@@ -97,6 +98,8 @@ class PostgresIncidentStore:
                 """,
                 (primary, primary, primary, incident_id),
             )
+        finally:
+            cur.close()
 
         self.conn.commit()
         incident_id_str = str(incident_id if isinstance(incident_id, UUID) else incident_id)
