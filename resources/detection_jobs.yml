@@ -1,0 +1,41 @@
+# Phase 3 incident detection + chaos jobs
+
+resources:
+  jobs:
+    ops_incident_detection:
+      name: ops-incident-detection
+      max_concurrent_runs: 1
+      timeout_seconds: 1800
+      schedule:
+        quartz_cron_expression: "0 */10 * * * ?"
+        timezone_id: UTC
+        pause_status: PAUSED
+      tasks:
+        - task_key: detect_and_open_incidents
+          notebook_task:
+            notebook_path: ../notebooks/ops/03_incident_detection.py
+            base_parameters:
+              lookback_hours: "24"
+
+    ops_chaos_inject:
+      name: ops-chaos-inject
+      max_concurrent_runs: 1
+      timeout_seconds: 1800
+      tasks:
+        - task_key: inject_failure
+          notebook_task:
+            notebook_path: ../notebooks/ops/04_chaos_inject.py
+            base_parameters:
+              failure_type: null_spike
+
+    ops_reset_demo:
+      name: ops-reset-demo
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      tasks:
+        - task_key: reset_demo
+          notebook_task:
+            notebook_path: ../notebooks/ops/05_reset_demo.py
+            base_parameters:
+              seed: "42"
+              reset_lakebase: "true"
