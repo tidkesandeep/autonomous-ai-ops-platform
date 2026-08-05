@@ -179,17 +179,20 @@ def inject_schema_drift(spark: Any, *, job_run_id: str | None = None) -> Injecti
 
 
 def inject_late_data(spark: Any, *, job_run_id: str | None = None) -> InjectionResult:
-    """Shift event timestamps far into the past relative to processing time."""
+    """Make event lag exceed the DQ late-data threshold (lag_minutes > 2880)."""
     table = f"{DEMO_SILVER}.events"
     run_id = job_run_id or f"chaos-late-{uuid.uuid4().hex[:10]}"
     from pyspark.sql import functions as F
 
     df = spark.table(table)
     ts_col = "event_ts" if "event_ts" in df.columns else ("ts" if "ts" in df.columns else None)
-    if ts_col is None:
-        mutated = df.withColumn("event_lag_hours", F.lit(72))
+    mutated = df
+    if ts_col is not None:
+        mutated = mutated.withColumn(ts_col, F.col(ts_col) - F.expr("INTERVAL 96 HOURS"))
+    if "lag_minutes" in df.columns:
+        mutated = mutated.withColumn("lag_minutes", F.lit(6000.0))
     else:
-        mutated = df.withColumn(ts_col, F.col(ts_col) - F.expr("INTERVAL 72 HOURS"))
+        mutated = mutated.withColumn("lag_minutes", F.lit(6000.0))
     mutated = _materialize(mutated)
     _overwrite_table(spark, table, mutated)
     result = InjectionResult(
@@ -198,7 +201,7 @@ def inject_late_data(spark: Any, *, job_run_id: str | None = None) -> InjectionR
         pipeline_key="events_clickstream",
         job_run_id=run_id,
         target_table=table,
-        detail={"lag_hours": 72, "ts_col": ts_col},
+        detail={"lag_minutes": 6000, "ts_col": ts_col},
     )
     _record_ground_truth(spark, result)
     return result
