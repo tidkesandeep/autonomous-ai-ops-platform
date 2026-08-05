@@ -26,7 +26,34 @@ def _workspace_token_host() -> tuple[str | None, str | None]:
         cfg = w.config
         return (cfg.host or "").rstrip("/") or None, cfg.token
     except Exception:  # noqa: BLE001
-        return None, None
+        pass
+
+    # Databricks Apps / serverless contexts often don't expose PATs via
+    # DATABRICKS_TOKEN. Try to read the runtime API token from the in-app
+    # execution context (when `dbutils` is available).
+    try:
+        import builtins
+
+        if hasattr(builtins, "dbutils"):
+            ctx = (
+                builtins.dbutils.notebook.entry_point.getDbutils().notebook().getContext()
+            )
+            token = ctx.apiToken().get()
+            # apiUrl includes the base https://host/
+            host = None
+            try:
+                api_url = getattr(ctx, "apiUrl", None)
+                if callable(api_url):
+                    v = api_url()
+                    host = v.get() if hasattr(v, "get") else v
+            except Exception:  # noqa: BLE001
+                host = None
+            if host and token:
+                return str(host).rstrip("/"), str(token)
+    except Exception:  # noqa: BLE001
+        pass
+
+    return None, None
 
 
 def _url_from_secret() -> str | None:
