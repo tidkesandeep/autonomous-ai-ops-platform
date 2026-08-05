@@ -6,20 +6,24 @@ Phase 3: evaluate ops telemetry / DQ / crash logs → open Lakebase incidents
 """
 
 # Databricks notebook source
-# MAGIC %pip install psycopg[binary] PyYAML requests --quiet
-# MAGIC
-# COMMAND ----------
-
-dbutils.library.restartPython()
+# MAGIC %pip install pg8000 requests --quiet
+# MAGIC %restart_python
 
 # COMMAND ----------
 
 import json
+import os
 import sys
 
 ROOT = "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform"
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
+
+ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
+os.environ["DATABRICKS_TOKEN"] = ctx.apiToken().get()
+os.environ["DATABRICKS_HOST"] = "https://" + spark.conf.get("spark.databricks.workspaceUrl")
+os.environ.setdefault("LAKEBASE_INSTANCE", "aiops-lakebase")
+os.environ.setdefault("LAKEBASE_USER", "sandeeptidke.work@gmail.com")
 
 from src.common.postgres import postgres_connection
 from src.detection.engine import run_detection
@@ -38,7 +42,6 @@ print(json.dumps(summary, indent=2, default=str))
 
 # COMMAND ----------
 
-# Mirror Lakebase app-state into ops Delta for analytics (Path A CTAS bridge)
 spark.sql("CREATE SCHEMA IF NOT EXISTS ops.gold")
 for src, dst in [
     ("lakebase_app.public.incidents", "ops.gold.incidents_delta"),
