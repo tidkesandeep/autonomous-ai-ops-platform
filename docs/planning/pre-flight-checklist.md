@@ -63,3 +63,11 @@ A PAT was shared in chat during setup. **Revoke it** in Settings → Developer �
 - Analytics bridge: `ops.gold.incidents_delta` (and signals/status mirrors) refreshed via CTAS from `lakebase_app`
 - Slack webhook still pending (notifier no-ops when `SLACK_WEBHOOK_URL` unset)
 
+## Phase 3 exit criteria (2026-08-05) — MET
+
+- Prove job `ops-phase3-prove` (`298045802108029`), run `952987383190044`: all **6** injected classes opened exactly one OPEN incident with matching `primary_failure_type`
+- Visible in `ops.gold.incidents_delta` before reset (precision=1.0, recall=1.0) — see `docs/metrics/phase3_scorecard.json`
+- `ops-reset-demo` (`51194964878044`) run `557672395643522` SUCCESS: Lakebase incidents truncated to 0; demo gold regenerated
+- Signal dedup unique index `uq_incident_signal_dedup` applied
+- Slack webhook still pending (notify writes `audit_log`; webhook no-ops until `SLACK_WEBHOOK_URL` is set)
+
