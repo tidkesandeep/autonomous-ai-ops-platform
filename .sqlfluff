@@ -1,0 +1,8 @@
+[sqlfluff]
+dialect = postgres
+templater = raw
+max_line_length = 120
+exclude_rules = RF01,RF03,RF04,RF06,ST06,LT01,LT02,LT12,CP02,CP03,CP05,AL01,AL05,PG01
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
