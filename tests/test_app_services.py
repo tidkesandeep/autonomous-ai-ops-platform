@@ -76,7 +76,43 @@ def test_list_incidents_filters_status(services, monkeypatch):
     rows = services.list_incidents(limit=10, status="AWAITING_APPROVAL")
     assert rows[0]["status"] == "AWAITING_APPROVAL"
     assert captured["params"] == ("AWAITING_APPROVAL", 10)
-    assert "WHERE status" in captured["sql"]
+    assert "status = %s" in captured["sql"]
+
+
+def test_list_incidents_filters_failure_type(services, monkeypatch):
+    captured: dict = {}
+
+    def fake_fetchall(sql, params=None):
+        captured["sql"] = sql
+        captured["params"] = params
+        return []
+
+    monkeypatch.setattr(services, "fetchall", fake_fetchall)
+    services.list_incidents(limit=20, status="ALL", failure_type="null_spike")
+    assert captured["params"] == ("null_spike", 20)
+    assert "primary_failure_type = %s" in captured["sql"]
+    assert "status = %s" not in captured["sql"]
+
+
+def test_list_incidents_filters_status_and_class(services, monkeypatch):
+    captured: dict = {}
+
+    def fake_fetchall(sql, params=None):
+        captured["params"] = params
+        return []
+
+    monkeypatch.setattr(services, "fetchall", fake_fetchall)
+    services.list_incidents(limit=5, status="OPEN", failure_type="job_crash")
+    assert captured["params"] == ("OPEN", "job_crash", 5)
+
+
+def test_remediation_summary_humanizes():
+    from services import remediation_summary
+
+    text = remediation_summary("quarantine_reprocess", {"strategy": "drop_null_keys", "column": "email"})
+    assert "Quarantine" in text
+    assert "drop_null_keys" in text
+    assert remediation_summary(None) == "No remediation proposed yet."
 
 
 def test_list_incidents_all_skips_where(services, monkeypatch):
@@ -89,7 +125,7 @@ def test_list_incidents_all_skips_where(services, monkeypatch):
 
     monkeypatch.setattr(services, "fetchall", fake_fetchall)
     services.list_incidents(limit=5, status="ALL")
-    assert "WHERE status" not in captured["sql"]
+    assert "WHERE" not in captured["sql"]
     assert captured["params"] == (5,)
 
 

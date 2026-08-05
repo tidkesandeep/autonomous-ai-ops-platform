@@ -23,30 +23,86 @@ REMEDIATION_FOR = {
     "volume_anomaly": ("diagnosis_only", {"reason": "no safe automatic remediation"}),
 }
 
+REMEDIATION_LABELS = {
+    "quarantine_reprocess": "Quarantine bad rows and rewrite the clean table",
+    "retry_adjusted_config": "Retry the pipeline with safer Spark / window settings",
+    "schema_evolution_ddl": "Apply additive schema evolution DDL",
+    "diagnosis_only": "Diagnose only — no automatic data changes",
+}
 
-def list_incidents(limit: int = 50, status: str | None = None) -> list[dict[str, Any]]:
+FAILURE_CLASS_LABELS = {
+    "null_spike": "Null spike",
+    "volume_anomaly": "Volume anomaly",
+    "duplicate_explosion": "Duplicate explosion",
+    "schema_drift": "Schema drift",
+    "late_data": "Late data",
+    "job_crash": "Job crash",
+}
+
+
+def list_incidents(
+    limit: int = 50,
+    status: str | None = None,
+    failure_type: str | None = None,
+) -> list[dict[str, Any]]:
+    clauses: list[str] = []
+    params: list[Any] = []
     if status and status != "ALL":
-        return fetchall(
-            """
-            SELECT incident_id::text, job_run_id, pipeline_key, primary_failure_type,
-                   severity, status, rca_report_path, linked_commit_sha, detected_at
-            FROM incidents
-            WHERE status = %s
-            ORDER BY detected_at DESC
-            LIMIT %s
-            """,
-            (status, limit),
-        )
+        clauses.append("status = %s")
+        params.append(status)
+    if failure_type and failure_type != "ALL":
+        clauses.append("primary_failure_type = %s")
+        params.append(failure_type)
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    params.append(limit)
     return fetchall(
-        """
+        f"""
         SELECT incident_id::text, job_run_id, pipeline_key, primary_failure_type,
                severity, status, rca_report_path, linked_commit_sha, detected_at
         FROM incidents
+        {where}
         ORDER BY detected_at DESC
         LIMIT %s
         """,
-        (limit,),
+        tuple(params),
     )
+
+
+def count_incidents_by_status() -> list[dict[str, Any]]:
+    return fetchall(
+        """
+        SELECT status, COUNT(*)::int AS n
+        FROM incidents
+        GROUP BY status
+        ORDER BY n DESC
+        """
+    )
+
+
+def count_incidents_by_failure_type() -> list[dict[str, Any]]:
+    return fetchall(
+        """
+        SELECT COALESCE(primary_failure_type, 'unknown') AS failure_type, COUNT(*)::int AS n
+        FROM incidents
+        GROUP BY 1
+        ORDER BY n DESC
+        """
+    )
+
+
+def remediation_summary(remediation_type: str | None, parameters: dict[str, Any] | None = None) -> str:
+    """Human-readable one-liner for the decision panel."""
+    if not remediation_type:
+        return "No remediation proposed yet."
+    label = REMEDIATION_LABELS.get(remediation_type, remediation_type)
+    params = parameters or {}
+    extras: list[str] = []
+    for key in ("strategy", "column", "key", "action", "mode", "reason"):
+        if params.get(key) not in (None, ""):
+            extras.append(f"{key}={params[key]}")
+    if extras:
+        return f"{label} ({', '.join(extras)})"
+    return label
 
 
 def get_incident(incident_id: str) -> dict[str, Any] | None:
