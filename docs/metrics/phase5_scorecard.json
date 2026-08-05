@@ -1,0 +1,92 @@
+{
+  "ok": true,
+  "ran_at": "2026-08-05T06:00:02.005816+00:00",
+  "failure_type": "null_spike",
+  "job_run_id": "phase5-prove-null_spike-221d7367",
+  "incident_id": "37a4fff2-23bb-4f0b-84ac-622ad5c4e970",
+  "remediation_type": "quarantine_reprocess",
+  "status": "RESOLVED",
+  "rca_report_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_37a4fff2-23bb-4f0b-84ac-622ad5c4e970_20260805T055916Z.md",
+  "approvals": 1,
+  "agent_ok": true,
+  "approval": {
+    "ok": true,
+    "approval_id": "6116f942-5362-460e-bee8-23bc88315ba5",
+    "remediation_type": "quarantine_reprocess",
+    "parameters": {
+      "key": "customer_id",
+      "column": "email",
+      "strategy": "drop_null_keys"
+    },
+    "status": "AWAITING_APPROVAL",
+    "dispatch": null
+  },
+  "remediation": {
+    "ok": true,
+    "incident_id": "37a4fff2-23bb-4f0b-84ac-622ad5c4e970",
+    "remediation_type": "quarantine_reprocess",
+    "parameters": {
+      "strategy": "drop_null_keys",
+      "column": "email",
+      "key": "customer_id"
+    },
+    "result": {
+      "ok": true,
+      "strategy": "drop_null_keys",
+      "source_table": "demo.silver.customers",
+      "quarantine_table": "demo.silver.customers_quarantine",
+      "quarantined_rows": 514,
+      "kept_rows": 486,
+      "column": "email",
+      "key": "customer_id"
+    },
+    "status": "RESOLVED"
+  },
+  "chaos": {
+    "injection_id": "495a8ee6b3194fbfaaad0fc3e44e6670",
+    "failure_type": "null_spike",
+    "pipeline_key": "customers_scd2",
+    "job_run_id": "phase5-prove-null_spike-221d7367",
+    "target_table": "demo.silver.customers",
+    "detail": {
+      "column": "email",
+      "approx_null_fraction": 0.5
+    }
+  },
+  "mirrors": {
+    "ok": true,
+    "mirrors": {
+      "incidents_delta": {
+        "ok": true,
+        "rows": 21,
+        "source": "lakebase_app.public.incidents"
+      },
+      "incident_signals_delta": {
+        "ok": true,
+        "rows": 21,
+        "source": "lakebase_app.public.incident_signals"
+      },
+      "incident_status_events_delta": {
+        "ok": true,
+        "rows": 64,
+        "source": "lakebase_app.public.incident_status_events"
+      },
+      "approvals_delta": {
+        "ok": true,
+        "rows": 1,
+        "source": "lakebase_app.public.approvals"
+      },
+      "agent_actions_delta": {
+        "ok": true,
+        "rows": 189,
+        "source": "lakebase_app.public.agent_actions"
+      },
+      "audit_log_delta": {
+        "ok": true,
+        "rows": 23,
+        "source": "lakebase_app.public.audit_log"
+      }
+    }
+  },
+  "exit_criteria_met": true
+}
