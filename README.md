@@ -122,7 +122,8 @@ sqlfluff lint resources/lakebase_schema.sql
 4. Seed demo data: `databricks bundle run demo_medallion_pipeline -t dev`
 5. Embed runbooks: `databricks bundle run ops_embed_runbooks -t dev`
 6. Deploy app source from `app/` (see Phase 5) or reuse `aiops-console`.
-7. Optional secrets: `SLACK_WEBHOOK_URL`, `GITHUB_TOKEN`, `GEMINI_API_KEY` / `GROQ_API_KEY`.
+7. Secrets (Slack / GitHub / Gemini / Groq): follow [`docs/operations/secrets-setup.md`](docs/operations/secrets-setup.md)
+   and `scripts/put-aiops-secret.sh`. Jobs load scope **`aiops`** automatically.
 
 ### Operator demo (one failure)
 
