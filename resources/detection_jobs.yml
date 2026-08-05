@@ -10,8 +10,12 @@ resources:
         quartz_cron_expression: "0 */10 * * * ?"
         timezone_id: UTC
         pause_status: PAUSED
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: detect_and_open_incidents
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/03_incident_detection.py
             base_parameters:
@@ -23,6 +27,7 @@ resources:
       timeout_seconds: 1800
       tasks:
         - task_key: inject_failure
+          max_retries: 0
           notebook_task:
             notebook_path: ../notebooks/ops/04_chaos_inject.py
             base_parameters:
@@ -34,6 +39,7 @@ resources:
       timeout_seconds: 3600
       tasks:
         - task_key: reset_demo
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/05_reset_demo.py
             base_parameters:
@@ -46,6 +52,7 @@ resources:
       timeout_seconds: 7200
       tasks:
         - task_key: prove_six_classes
+          max_retries: 0
           notebook_task:
             notebook_path: ../notebooks/ops/06_phase3_prove.py
             base_parameters:
