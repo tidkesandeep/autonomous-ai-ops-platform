@@ -52,8 +52,8 @@ def reset_demo_tables(spark: Any, *, seed: int = 42) -> dict[str, Any]:
 
 def reset_lakebase(conn: Any) -> None:
     """Truncate app-state tables (order respects FKs via TRUNCATE ... or explicit order)."""
-    with conn.cursor() as cur:
-        # Prefer CASCADE if available
+    cur = conn.cursor()
+    try:
         try:
             cur.execute("TRUNCATE TABLE incidents CASCADE")
         except Exception:
@@ -61,6 +61,8 @@ def reset_lakebase(conn: Any) -> None:
                 s = stmt.strip()
                 if s:
                     cur.execute(s)
+    finally:
+        cur.close()
     conn.commit()
 
 
