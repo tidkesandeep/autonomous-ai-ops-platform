@@ -29,15 +29,7 @@ from src.agent.tools_write import (
     update_incident_status,
 )
 from src.detection.slack import notify_raw
-
-REMEDIATION_FOR = {
-    "job_crash": ("retry_adjusted_config", {"timeout_seconds": 3600, "retry": 1}),
-    "schema_drift": ("schema_evolution_ddl", {"action": "generate_ddl"}),
-    "duplicate_explosion": ("quarantine_reprocess", {"strategy": "keep_latest_per_key"}),
-    "null_spike": ("quarantine_reprocess", {"strategy": "drop_null_keys"}),
-    "volume_anomaly": ("diagnosis_only", {"reason": "no safe automatic remediation"}),
-    "late_data": ("retry_adjusted_config", {"mode": "replay_window"}),
-}
+from src.remediation.mapping import REMEDIATION_FOR
 
 
 def _summarize(obj: Any, limit: int = 800) -> str:
