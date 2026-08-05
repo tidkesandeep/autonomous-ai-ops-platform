@@ -71,6 +71,11 @@ def _record_ground_truth(spark: Any, result: InjectionResult) -> None:
     spark.createDataFrame([row], schema=schema).write.mode("append").format(TABLE_FORMAT).saveAsTable(table)
 
 
+def _materialize(df: Any) -> Any:
+    """Break lineage without PERSIST (unsupported on serverless)."""
+    return df.sparkSession.createDataFrame(df.collect(), schema=df.schema)
+
+
 def _overwrite_table(spark: Any, table: str, df: Any) -> None:
     """Overwrite a table without reading it concurrently (local Spark + Delta)."""
     tmp = f"{table}__chaos_tmp"
@@ -91,13 +96,13 @@ def inject_null_spike(spark: Any, *, job_run_id: str | None = None) -> Injection
     df = spark.table(table)
     from pyspark.sql import functions as F
 
-    mutated = df.withColumn(
-        "email",
-        F.when((F.hash(F.col("customer_id")) % 2) == 0, F.lit(None)).otherwise(F.col("email")),
-    ).cache()
-    mutated.count()
+    mutated = _materialize(
+        df.withColumn(
+            "email",
+            F.when((F.hash(F.col("customer_id")) % 2) == 0, F.lit(None)).otherwise(F.col("email")),
+        )
+    )
     _overwrite_table(spark, table, mutated)
-    mutated.unpersist()
     result = InjectionResult(
         injection_id=uuid.uuid4().hex,
         failure_type="null_spike",
@@ -115,10 +120,8 @@ def inject_volume_anomaly(spark: Any, *, job_run_id: str | None = None) -> Injec
     table = f"{DEMO_BRONZE}.raw_orders"
     run_id = job_run_id or f"chaos-volume-{uuid.uuid4().hex[:10]}"
     df = spark.table(table)
-    kept = df.limit(max(1, df.count() // 20)).cache()
-    kept.count()
+    kept = _materialize(df.limit(max(1, df.count() // 20)))
     _overwrite_table(spark, table, kept)
-    kept.unpersist()
     result = InjectionResult(
         injection_id=uuid.uuid4().hex,
         failure_type="volume_anomaly",
@@ -136,10 +139,8 @@ def inject_duplicate_explosion(spark: Any, *, job_run_id: str | None = None) -> 
     table = f"{DEMO_SILVER}.orders"
     run_id = job_run_id or f"chaos-dup-{uuid.uuid4().hex[:10]}"
     df = spark.table(table)
-    exploded = df.unionByName(df).cache()
-    exploded.count()
+    exploded = _materialize(df.unionByName(df))
     _overwrite_table(spark, table, exploded)
-    exploded.unpersist()
     result = InjectionResult(
         injection_id=uuid.uuid4().hex,
         failure_type="duplicate_explosion",
@@ -163,10 +164,8 @@ def inject_schema_drift(spark: Any, *, job_run_id: str | None = None) -> Injecti
         from pyspark.sql import functions as F
 
         mutated = df.withColumn("unexpected_col", F.lit("drift"))
-    mutated = mutated.cache()
-    mutated.count()
+    mutated = _materialize(mutated)
     _overwrite_table(spark, table, mutated)
-    mutated.unpersist()
     result = InjectionResult(
         injection_id=uuid.uuid4().hex,
         failure_type="schema_drift",
@@ -191,10 +190,8 @@ def inject_late_data(spark: Any, *, job_run_id: str | None = None) -> InjectionR
         mutated = df.withColumn("event_lag_hours", F.lit(72))
     else:
         mutated = df.withColumn(ts_col, F.col(ts_col) - F.expr("INTERVAL 72 HOURS"))
-    mutated = mutated.cache()
-    mutated.count()
+    mutated = _materialize(mutated)
     _overwrite_table(spark, table, mutated)
-    mutated.unpersist()
     result = InjectionResult(
         injection_id=uuid.uuid4().hex,
         failure_type="late_data",
