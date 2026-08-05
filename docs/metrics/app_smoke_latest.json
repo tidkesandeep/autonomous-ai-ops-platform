@@ -2,7 +2,7 @@
   "ok": true,
   "app_name": "aiops-console",
   "app_url": "https://aiops-console-7474653382320337.aws.databricksapps.com",
-  "duration_s": 17.21,
+  "duration_s": 15.67,
   "checks": [
     {
       "name": "apps_api_compute_active",
