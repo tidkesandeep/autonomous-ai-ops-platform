@@ -1,0 +1,163 @@
+{
+  "ran_at": "2026-08-05T05:32:32.188080+00:00",
+  "repeats": 3,
+  "summary": {
+    "n": 18,
+    "mean": 2.0,
+    "zeros": 0,
+    "distribution": {
+      "0": 0,
+      "1": 0,
+      "2": 18
+    },
+    "exit_criteria_met": true
+  },
+  "details": [
+    {
+      "run_id": "agent-eval-job_crash-1",
+      "incident_id": "2525b305-0018-4e19-920b-407ee0d63c5f",
+      "failure_type": "job_crash",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_2525b305-0018-4e19-920b-407ee0d63c5f_20260805T053102Z.md"
+    },
+    {
+      "run_id": "agent-eval-job_crash-2",
+      "incident_id": "bdb02b88-26dd-4c62-a9ab-b1deb96a13f5",
+      "failure_type": "job_crash",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_bdb02b88-26dd-4c62-a9ab-b1deb96a13f5_20260805T053107Z.md"
+    },
+    {
+      "run_id": "agent-eval-job_crash-3",
+      "incident_id": "ba46fa44-55b1-48d0-9a14-bb65102203b4",
+      "failure_type": "job_crash",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_ba46fa44-55b1-48d0-9a14-bb65102203b4_20260805T053111Z.md"
+    },
+    {
+      "run_id": "agent-eval-schema_drift-1",
+      "incident_id": "b71f18f2-352c-4c9f-a955-05d2e8f8e0c2",
+      "failure_type": "schema_drift",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_b71f18f2-352c-4c9f-a955-05d2e8f8e0c2_20260805T053118Z.md"
+    },
+    {
+      "run_id": "agent-eval-schema_drift-2",
+      "incident_id": "35ee0c42-3231-455f-a9e3-f296bd1c33fa",
+      "failure_type": "schema_drift",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_35ee0c42-3231-455f-a9e3-f296bd1c33fa_20260805T053124Z.md"
+    },
+    {
+      "run_id": "agent-eval-schema_drift-3",
+      "incident_id": "9726139b-41f4-446c-bb60-2c6c75df9a74",
+      "failure_type": "schema_drift",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_9726139b-41f4-446c-bb60-2c6c75df9a74_20260805T053129Z.md"
+    },
+    {
+      "run_id": "agent-eval-duplicate_explosion-1",
+      "incident_id": "f52ee7aa-c098-43cf-b73f-c58dce5f5583",
+      "failure_type": "duplicate_explosion",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_f52ee7aa-c098-43cf-b73f-c58dce5f5583_20260805T053136Z.md"
+    },
+    {
+      "run_id": "agent-eval-duplicate_explosion-2",
+      "incident_id": "2ebb5056-e039-42d5-b11e-9aa2e89a49e3",
+      "failure_type": "duplicate_explosion",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_2ebb5056-e039-42d5-b11e-9aa2e89a49e3_20260805T053141Z.md"
+    },
+    {
+      "run_id": "agent-eval-duplicate_explosion-3",
+      "incident_id": "a7309f5e-0f92-4d63-b815-1fdef5f78032",
+      "failure_type": "duplicate_explosion",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_a7309f5e-0f92-4d63-b815-1fdef5f78032_20260805T053146Z.md"
+    },
+    {
+      "run_id": "agent-eval-null_spike-1",
+      "incident_id": "eea16d28-ffbb-4d66-a6ed-47d1f81babdb",
+      "failure_type": "null_spike",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_eea16d28-ffbb-4d66-a6ed-47d1f81babdb_20260805T053151Z.md"
+    },
+    {
+      "run_id": "agent-eval-null_spike-2",
+      "incident_id": "0edb85eb-a111-4886-93a1-bc4872e9aa96",
+      "failure_type": "null_spike",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_0edb85eb-a111-4886-93a1-bc4872e9aa96_20260805T053157Z.md"
+    },
+    {
+      "run_id": "agent-eval-null_spike-3",
+      "incident_id": "40e26b7a-f771-4542-a971-fa45107d84ec",
+      "failure_type": "null_spike",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_40e26b7a-f771-4542-a971-fa45107d84ec_20260805T053202Z.md"
+    },
+    {
+      "run_id": "agent-eval-volume_anomaly-1",
+      "incident_id": "6b0134ef-f7b0-4130-b4f8-2a4a988e25f4",
+      "failure_type": "volume_anomaly",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_6b0134ef-f7b0-4130-b4f8-2a4a988e25f4_20260805T053206Z.md"
+    },
+    {
+      "run_id": "agent-eval-volume_anomaly-2",
+      "incident_id": "1c3837bc-66cd-4f80-ae93-964d058254f7",
+      "failure_type": "volume_anomaly",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_1c3837bc-66cd-4f80-ae93-964d058254f7_20260805T053212Z.md"
+    },
+    {
+      "run_id": "agent-eval-volume_anomaly-3",
+      "incident_id": "07cec0e4-39fd-4f9c-bc21-5a6987a52c27",
+      "failure_type": "volume_anomaly",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_07cec0e4-39fd-4f9c-bc21-5a6987a52c27_20260805T053217Z.md"
+    },
+    {
+      "run_id": "agent-eval-late_data-1",
+      "incident_id": "6c0de72d-372a-4226-82c1-c1c28a6207a4",
+      "failure_type": "late_data",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_6c0de72d-372a-4226-82c1-c1c28a6207a4_20260805T053222Z.md"
+    },
+    {
+      "run_id": "agent-eval-late_data-2",
+      "incident_id": "e7d76d78-7ba7-4bfe-8ceb-ea8e531a9a98",
+      "failure_type": "late_data",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_e7d76d78-7ba7-4bfe-8ceb-ea8e531a9a98_20260805T053226Z.md"
+    },
+    {
+      "run_id": "agent-eval-late_data-3",
+      "incident_id": "ec261038-177c-46a9-854f-c7e454500574",
+      "failure_type": "late_data",
+      "ok": true,
+      "score": 2,
+      "rca_path": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/rca/rca_ec261038-177c-46a9-854f-c7e454500574_20260805T053232Z.md"
+    }
+  ],
+  "grades_csv": "/Workspace/Users/sandeeptidke.work@gmail.com/autonomous-ai-ops-platform/docs/metrics/agent_grades.csv",
+  "exit_criteria_met": true
+}
