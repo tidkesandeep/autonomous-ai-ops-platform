@@ -1,5 +1,5 @@
-# Lakebase / Postgres app-state schema (Week 3 wires this up).
-# Path A/B: apply against Lakebase. Path C/D: apply against Neon.
+-- Lakebase / Postgres app-state schema (Phase 3 wires this up).
+-- Path A/B: apply against Lakebase. Path C/D: apply against Neon.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
