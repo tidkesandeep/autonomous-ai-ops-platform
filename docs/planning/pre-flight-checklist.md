@@ -71,3 +71,17 @@ A PAT was shared in chat during setup. **Revoke it** in Settings → Developer �
 - Signal dedup unique index `uq_incident_signal_dedup` applied
 - Slack webhook still pending (notify writes `audit_log`; webhook no-ops until `SLACK_WEBHOOK_URL` is set)
 
+## Phase 4 live verification (2026-08-05)
+
+- Runbooks (9) chunked + embedded → `ops.gold.runbook_embeddings` (36 chunks) via `ops-embed-runbooks` (`341843632355099`)
+- Agent jobs: `ops-run-agent` (`946973285799613`), `ops-agent-eval` (`468032202039268`)
+- Eval run `284412746768412` SUCCESS: **18**/18 synthetic incidents (6 classes × 3) → `AWAITING_APPROVAL` with `rca_report_path` set; **162** eval `agent_actions`
+- Heuristic tool loop grades without LLM keys; optional LiteLLM polish when `GROQ_API_KEY` / `GEMINI_API_KEY` set
+- Slack RCA notify no-ops until `SLACK_WEBHOOK_URL` is set (same as Phase 3)
+
+## Phase 4 exit criteria (2026-08-05) — MET
+
+- Mean RCA rubric **2.0**/2 across **18** runs; **0** zeros — see `docs/metrics/phase4_scorecard.json`
+- All 18 reports linked on Lakebase `incidents.rca_report_path` (workspace `docs/metrics/rca/`)
+- Embedding API / GitHub PAT / Slack webhook still pending for full LLM polish + commit correlation (hash embeddings + heuristic path proven)
+
