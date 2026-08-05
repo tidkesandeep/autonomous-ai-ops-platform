@@ -40,7 +40,7 @@ from src.agent.runner import run_agent
 from src.chaos.reset_demo import reset_demo
 from src.common.constants import FAILURE_TYPES
 from src.common.postgres import postgres_connection
-from src.detection.incidents import IncidentStore
+from src.detection.incidents import PostgresIncidentStore
 from src.detection.prove import prove_all_failure_classes
 from src.remediation.approvals import approve_incident
 from src.remediation.sync_analytics import sync_lakebase_mirrors
@@ -63,10 +63,22 @@ Path(reports_dir).mkdir(parents=True, exist_ok=True)
 # COMMAND ----------
 
 with postgres_connection() as conn:
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_incident_signal_dedup
+            ON incident_signals (incident_id, failure_type, detected_by)
+            """
+        )
+    finally:
+        cur.close()
+    conn.commit()
+
     if clear_existing:
         print("reset", reset_demo(spark, conn, seed=42, reset_lakebase_state=True))
 
-    store = IncidentStore(conn)
+    store = PostgresIncidentStore(conn, notify=True, changed_by="console_seed")
     prove = prove_all_failure_classes(
         spark,
         store,
