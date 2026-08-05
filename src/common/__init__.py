@@ -8,6 +8,7 @@ from .constants import (
     OPS_CATALOG,
     PIPELINE_KEYS,
 )
+from .postgres import connect_kwargs_from_env, postgres_connection
 
 __all__ = [
     "DEMO_CATALOG",
@@ -16,4 +17,6 @@ __all__ = [
     "FAILURE_TYPES",
     "FAILURE_TYPE_PRIORITY",
     "INCIDENT_STATUSES",
+    "connect_kwargs_from_env",
+    "postgres_connection",
 ]
