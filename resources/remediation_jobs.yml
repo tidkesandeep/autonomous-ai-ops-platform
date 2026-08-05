@@ -6,8 +6,12 @@ resources:
       name: ops-remediate
       max_concurrent_runs: 2
       timeout_seconds: 1800
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
       tasks:
         - task_key: remediate
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/10_remediate.py
             base_parameters:
@@ -25,6 +29,7 @@ resources:
         pause_status: PAUSED
       tasks:
         - task_key: sync_mirrors
+          max_retries: 1
           notebook_task:
             notebook_path: ../notebooks/ops/11_sync_analytics.py
 
@@ -34,6 +39,7 @@ resources:
       timeout_seconds: 7200
       tasks:
         - task_key: prove_full_loop
+          max_retries: 0
           notebook_task:
             notebook_path: ../notebooks/ops/12_phase5_prove.py
             base_parameters:
