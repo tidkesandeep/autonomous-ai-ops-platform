@@ -5,6 +5,17 @@
 Populate **~100** Lakebase incidents across all 6 failure classes, with a mix of
 statuses so every console filter is useful.
 
+## Verified state (after bulk seed)
+
+| Metric | Value |
+|---|---|
+| Total incidents | **100** |
+| AWAITING_APPROVAL | 74 |
+| RESOLVED | 18 |
+| INVESTIGATING | 8 |
+| Dev job id | `1079544494380623` (`[dev] ops-bulk-seed-console`) |
+| App | https://aiops-console-7474653382320337.aws.databricksapps.com |
+
 ## One-time / repeatable bulk seed (recommended)
 
 ### Databricks UI
@@ -22,7 +33,7 @@ statuses so every console filter is useful.
 ### CLI
 ```bash
 databricks jobs run-now --json '{
-  "job_id": <BULK_SEED_JOB_ID>,
+  "job_id": 1079544494380623,
   "notebook_params": {
     "target_total": "100",
     "resolve_n": "18",
