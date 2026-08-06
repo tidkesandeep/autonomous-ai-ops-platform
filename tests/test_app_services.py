@@ -229,3 +229,73 @@ def test_do_approve_dispatches_remediation_job(services, monkeypatch):
     assert result["ok"] is True
     assert result["dispatch"]["run_id"] == 42
     assert result["dispatch"]["incident_id"] == "inc-null"
+
+
+def test_remediation_short_label():
+    from services import remediation_short_label
+
+    assert "Quarantine" in remediation_short_label("quarantine_reprocess")
+    assert remediation_short_label(None) == "—"
+
+
+def test_enrich_incidents_with_remedy_states(services, monkeypatch):
+    calls: list[str] = []
+
+    def fake_fetchall(sql, params=None):
+        calls.append(sql)
+        if "FROM approvals" in sql:
+            return [
+                {
+                    "incident_id": "inc-applied",
+                    "decision": "approved",
+                    "remediation_type": "quarantine_reprocess",
+                },
+                {
+                    "incident_id": "inc-rejected",
+                    "decision": "rejected",
+                    "remediation_type": "retry_adjusted_config",
+                },
+            ]
+        if "FROM audit_log" in sql:
+            return [
+                {
+                    "incident_id": "inc-proposed",
+                    "detail_json": {
+                        "remediation_type": "schema_evolution_ddl",
+                        "parameters": {},
+                    },
+                }
+            ]
+        return []
+
+    monkeypatch.setattr(services, "fetchall", fake_fetchall)
+    rows = services.enrich_incidents_with_remedy(
+        [
+            {"incident_id": "inc-applied", "status": "RESOLVED", "primary_failure_type": "null_spike"},
+            {
+                "incident_id": "inc-rejected",
+                "status": "INVESTIGATING",
+                "primary_failure_type": "job_crash",
+            },
+            {
+                "incident_id": "inc-proposed",
+                "status": "AWAITING_APPROVAL",
+                "primary_failure_type": "schema_drift",
+            },
+            {
+                "incident_id": "inc-mapped",
+                "status": "OPEN",
+                "primary_failure_type": "volume_anomaly",
+            },
+        ]
+    )
+    by_id = {r["incident_id"]: r for r in rows}
+    assert by_id["inc-applied"]["remedy_state"] == "applied"
+    assert by_id["inc-applied"]["remedy"].startswith("Applied ·")
+    assert by_id["inc-rejected"]["remedy_state"] == "rejected"
+    assert by_id["inc-proposed"]["remedy_state"] == "proposed"
+    assert "schema" in by_id["inc-proposed"]["remedy"].lower() or "Schema" in by_id["inc-proposed"]["remedy"]
+    assert by_id["inc-mapped"]["remedy_state"] == "mapped"
+    assert by_id["inc-mapped"]["remediation_type"] == "diagnosis_only"
+    assert any("FROM approvals" in c for c in calls)
+    assert any("FROM audit_log" in c for c in calls)

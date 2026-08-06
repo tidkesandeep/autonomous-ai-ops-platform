@@ -104,6 +104,105 @@ def remediation_summary(remediation_type: str | None, parameters: dict[str, Any]
     return label
 
 
+def remediation_short_label(remediation_type: str | None) -> str:
+    """Compact label for incident-list columns."""
+    if not remediation_type:
+        return "—"
+    return REMEDIATION_LABELS.get(remediation_type, remediation_type)
+
+
+def enrich_incidents_with_remedy(incidents: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Attach ``remedy`` / ``remedy_state`` using approvals (applied) then proposals.
+
+    - ``applied``  — latest approval decision=approved (what was implemented)
+    - ``rejected`` — latest approval decision=rejected
+    - ``proposed`` — latest propose_remediation audit row (not yet decided)
+    - ``mapped``   — fallback from failure-class mapping when nothing recorded
+    - ``none``     — no known remedy
+    """
+    if not incidents:
+        return incidents
+
+    ids = [str(i["incident_id"]) for i in incidents if i.get("incident_id")]
+    approvals_by_id: dict[str, dict[str, Any]] = {}
+    proposals_by_id: dict[str, dict[str, Any]] = {}
+
+    if ids:
+        for row in fetchall(
+            """
+            SELECT DISTINCT ON (incident_id)
+                   incident_id::text AS incident_id,
+                   decision,
+                   remediation_type
+            FROM approvals
+            WHERE incident_id = ANY(%s::uuid[])
+            ORDER BY incident_id, decided_at DESC
+            """,
+            (ids,),
+        ):
+            approvals_by_id[str(row["incident_id"])] = row
+
+        for row in fetchall(
+            """
+            SELECT DISTINCT ON (entity_id)
+                   entity_id AS incident_id,
+                   detail_json
+            FROM audit_log
+            WHERE entity_type = 'incident'
+              AND action = 'propose_remediation'
+              AND entity_id = ANY(%s)
+            ORDER BY entity_id, created_at DESC
+            """,
+            (ids,),
+        ):
+            proposals_by_id[str(row["incident_id"])] = row
+
+    enriched: list[dict[str, Any]] = []
+    for inc in incidents:
+        row = dict(inc)
+        iid = str(row.get("incident_id") or "")
+        approval = approvals_by_id.get(iid)
+        proposal = proposals_by_id.get(iid)
+        rem_type: str | None = None
+        state = "none"
+
+        if approval and approval.get("decision") == "approved":
+            rem_type = approval.get("remediation_type")
+            state = "applied"
+        elif approval and approval.get("decision") == "rejected":
+            rem_type = approval.get("remediation_type")
+            state = "rejected"
+        elif proposal:
+            detail = proposal.get("detail_json")
+            if isinstance(detail, str):
+                try:
+                    detail = json.loads(detail)
+                except json.JSONDecodeError:
+                    detail = {}
+            if isinstance(detail, dict):
+                rem_type = detail.get("remediation_type")
+            state = "proposed"
+        else:
+            mapped = REMEDIATION_FOR.get(row.get("primary_failure_type") or "")
+            if mapped:
+                rem_type = mapped[0]
+                state = "mapped"
+
+        label = remediation_short_label(rem_type)
+        prefix = {
+            "applied": "Applied",
+            "rejected": "Rejected",
+            "proposed": "Proposed",
+            "mapped": "Expected",
+            "none": "",
+        }.get(state, "")
+        row["remedy_state"] = state
+        row["remediation_type"] = rem_type
+        row["remedy"] = f"{prefix} · {label}" if prefix and label != "—" else label
+        enriched.append(row)
+    return enriched
+
+
 def get_incident(incident_id: str) -> dict[str, Any] | None:
     rows = fetchall(
         """

@@ -13,6 +13,7 @@ from services import (
     current_user_email,
     do_approve,
     do_reject,
+    enrich_incidents_with_remedy,
     get_incident,
     list_agent_actions,
     list_approvals,
@@ -50,6 +51,7 @@ try:
     status_counts = {r["status"]: r["n"] for r in count_incidents_by_status()}
     class_counts = {r["failure_type"]: r["n"] for r in count_incidents_by_failure_type()}
     incidents = list_incidents(limit=limit, status=status_filter, failure_type=failure_filter)
+    incidents = enrich_incidents_with_remedy(incidents)
 except Exception as exc:  # noqa: BLE001
     st.error(f"Lakebase connection failed: {exc}")
     st.stop()
@@ -78,6 +80,7 @@ table_rows = [
     {
         "status": i.get("status"),
         "failure_type": i.get("primary_failure_type") or "—",
+        "remedy": i.get("remedy") or "—",
         "pipeline": i.get("pipeline_key") or "—",
         "job_run_id": i.get("job_run_id") or "—",
         "detected_at": str(i.get("detected_at") or ""),
@@ -86,6 +89,7 @@ table_rows = [
     for i in incidents
 ]
 st.subheader("Incidents")
+st.caption("Remedy: **Applied** = approved/implemented · **Proposed** = awaiting decision · **Rejected** = sent back")
 st.dataframe(table_rows, use_container_width=True, hide_index=True)
 
 # Keep selection sticky across refreshes when the incident is still in the filtered list.
@@ -115,6 +119,8 @@ col1.metric("Status", detail["status"])
 col2.metric("Failure", FAILURE_CLASS_LABELS.get(detail.get("primary_failure_type") or "", detail.get("primary_failure_type") or "—"))
 col3.metric("Pipeline", detail.get("pipeline_key") or "—")
 col4.metric("Severity", detail.get("severity") or "—")
+if selected.get("remedy"):
+    st.info(f"**Remedy:** {selected['remedy']}")
 
 st.markdown(
     f"**Incident** `{iid}`  \n"
