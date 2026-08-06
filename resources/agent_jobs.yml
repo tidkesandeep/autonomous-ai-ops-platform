@@ -42,3 +42,22 @@ resources:
             notebook_path: ../notebooks/ops/09_agent_eval.py
             base_parameters:
               repeats: "3"
+
+    ops_bulk_seed_console:
+      name: ops-bulk-seed-console
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      email_notifications:
+        on_failure:
+          - sandeeptidke.work@gmail.com
+      tasks:
+        - task_key: bulk_seed
+          max_retries: 0
+          notebook_task:
+            notebook_path: ../notebooks/ops/15_bulk_seed_console.py
+            base_parameters:
+              target_total: "100"
+              resolve_n: "18"
+              reject_n: "8"
+              mode: "fast"
+              write_evidence: "false"
